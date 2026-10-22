@@ -1,4 +1,4 @@
-# Nguyễn Sơn — Edit Suite
+# Nguyễn Sơn — Portfolio
 
 Portfolio dạng phần mềm dựng phim: một thế giới cuộn ngang dùng Three.js, chia thành 6 cảnh (Intro, Video, Design, AI, Career, Contact) và có timeline điều hướng ở đáy màn hình.
 
