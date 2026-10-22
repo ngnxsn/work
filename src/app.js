@@ -888,9 +888,11 @@ function layout(animate){
 // mobile: centre the deck in the space left between the intro copy and the timeline
 function placeDeck(){
   if (!V.mobile) return;
-  const rects = [...elIntro.children].map(c => c.getBoundingClientRect()).filter(r => r.height);
+  // measure the visible lines of copy (not their container) and the timeline as drawn
+  const rects = [...elIntro.querySelectorAll('.intro-copy > *')].map(c => c.getBoundingClientRect()).filter(r => r.height);
   if (!rects.length) return;
-  const top = Math.max(...rects.map(r => r.bottom)), bottom = V.h - V.tl;
+  const top = Math.max(...rects.map(r => r.bottom));
+  const bottom = Math.min(V.h - V.tl, $('#timeline') ? $('#timeline').getBoundingClientRect().top : Infinity);
   const cy = Math.min((top + bottom) / 2, bottom - L.deckH / 2 - 28);
   L.deckY = V.h / 2 - cy;
 }
@@ -1425,6 +1427,7 @@ function finishBoot(){
   gsap.from('.reveal', {y:40, opacity:0, duration:.9 * d, stagger:.08 * d, ease:'power3.out', delay:.2 * d});
   deckCards.forEach((c, i) => gsap.to(c, {vis:1, duration:.9 * d, delay:(.35 + i * .08) * d, ease:'back.out(1.4)'}));
   deckCards[2].play();
+  setTimeout(placeDeck, 1600 * d + 50); // once the copy has settled from its reveal
 }
 setTimeout(finishBoot, 3500); // never hold the page hostage to slow thumbnails
 (function bootClock(){ if (booted) return; $('#boot-tc').textContent = tcFmt(performance.now() / 10); requestAnimationFrame(bootClock); })();
@@ -1479,6 +1482,7 @@ function frame(){
 const hasSize = () => innerWidth > 0 && innerHeight > 0;
 function onResize(){ if (!hasSize()) return; measureViewport(); layout(false); buildDust(); }
 let rT; addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(onResize, 120); });
+if (window.visualViewport) visualViewport.addEventListener('resize', () => setTimeout(placeDeck, 150)); // iOS toolbars
 buildFilters();
 $('#video-count').textContent = VIDEOS.length; // follows videos.json, nothing to update by hand
 function start(){
