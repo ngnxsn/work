@@ -890,14 +890,15 @@ function layout(animate){
 // mobile: centre the deck in the space left between the intro copy and the timeline
 function placeDeck(){
   if (!V.mobile) return;
-  // measure the visible lines of copy (not their container) and the timeline as drawn
-  const rects = [...elIntro.querySelectorAll('.intro-copy > *')].map(c => c.getBoundingClientRect()).filter(r => r.height);
-  if (!rects.length) return;
-  const top = Math.max(...rects.map(r => r.bottom));
+  // the copy's end is read from an unzoomed marker placed right after it: Safari reports
+  // rects inside a CSS-zoomed element (see fitScenes) at the wrong scale
+  let mark = $('#intro-end');
+  if (!mark){ mark = document.createElement('div'); mark.id = 'intro-end'; mark.style.cssText = 'height:0;flex:none'; elIntro.querySelector('.intro-copy').after(mark); }
+  const top = mark.getBoundingClientRect().top;
   const bottom = Math.min(V.h - V.tl, $('#timeline') ? $('#timeline').getBoundingClientRect().top : Infinity);
   const cy = Math.min((top + bottom) / 2, bottom - L.deckH / 2 - 28);
   L.deckY = V.h / 2 - cy;
-  if (DEBUG) showDebug({inner:innerHeight, gl:canvas.clientHeight, vv:window.visualViewport && Math.round(visualViewport.height), copy:Math.round(top), tl:Math.round(bottom), deckH:Math.round(L.deckH), cy:Math.round(cy)});
+  if (DEBUG) showDebug({inner:innerHeight, gl:canvas.clientHeight, vv:window.visualViewport && Math.round(visualViewport.height), copy:Math.round(top), zoom:elIntro.querySelector('.intro-copy').style.zoom || 1, tl:Math.round(bottom), deckH:Math.round(L.deckH), cy:Math.round(cy)});
 }
 // ?debug prints the layout numbers on screen, for checking phones we cannot attach to
 const DEBUG = /[?&]debug/.test(location.search);
@@ -908,7 +909,7 @@ function showDebug(o){
 }
 function fitScenes(){
   track.querySelectorAll('.scene').forEach(el => {
-    const kids = [...el.children];
+    const kids = [...el.children].filter(c => c.id !== 'intro-end');
     kids.forEach(k => { k.style.zoom = ''; });
     // measure the children themselves: scrollHeight handles padding differently per browser
     const cs = getComputedStyle(el);
