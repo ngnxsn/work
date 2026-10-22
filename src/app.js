@@ -687,7 +687,9 @@ const track = $('#track');
 const elIntro = $('#intro'), elVHead = $('#vhead'), elDHead = $('#dhead'), elAHead = $('#ahead'), elCHead = $('#chead'), elOHead = $('#ohead'), elContact = $('#contact-scene'), elClapCap = $('#clap-caption'), elEnd = $('#vend'), elCaption = $('#deck-caption');
 
 function measureViewport(){
-  V.w = innerWidth; V.h = innerHeight; V.mobile = V.w < 720;
+  // use the size the page is actually laid out at: on iOS innerHeight can include the
+  // area behind the browser bars, which shifts every 3D card down against the HTML
+  V.w = canvas.clientWidth || innerWidth; V.h = canvas.clientHeight || innerHeight; V.mobile = V.w < 720;
   V.hud = V.mobile ? 56 : 64; V.tl = V.mobile ? 104 : 132;
   V.avail = V.h - V.hud - V.tl;
   V.cy = (V.hud + V.h - V.tl) / 2;
@@ -895,6 +897,14 @@ function placeDeck(){
   const bottom = Math.min(V.h - V.tl, $('#timeline') ? $('#timeline').getBoundingClientRect().top : Infinity);
   const cy = Math.min((top + bottom) / 2, bottom - L.deckH / 2 - 28);
   L.deckY = V.h / 2 - cy;
+  if (DEBUG) showDebug({inner:innerHeight, gl:canvas.clientHeight, vv:window.visualViewport && Math.round(visualViewport.height), copy:Math.round(top), tl:Math.round(bottom), deckH:Math.round(L.deckH), cy:Math.round(cy)});
+}
+// ?debug prints the layout numbers on screen, for checking phones we cannot attach to
+const DEBUG = /[?&]debug/.test(location.search);
+function showDebug(o){
+  let el = $('#dbg');
+  if (!el){ el = document.createElement('pre'); el.id = 'dbg'; el.style.cssText = 'position:fixed;left:8px;top:70px;z-index:99;margin:0;padding:6px 8px;font:11px/1.4 monospace;background:#000c;color:#7f7;border-radius:6px;pointer-events:none'; document.body.append(el); }
+  el.textContent = Object.entries(o).map(([k, v]) => k + ': ' + v).join('\n');
 }
 function fitScenes(){
   track.querySelectorAll('.scene').forEach(el => {
@@ -1482,7 +1492,7 @@ function frame(){
 const hasSize = () => innerWidth > 0 && innerHeight > 0;
 function onResize(){ if (!hasSize()) return; measureViewport(); layout(false); buildDust(); }
 let rT; addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(onResize, 120); });
-if (window.visualViewport) visualViewport.addEventListener('resize', () => setTimeout(placeDeck, 150)); // iOS toolbars
+if (window.visualViewport) visualViewport.addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(onResize, 120); }); // iOS bars
 buildFilters();
 $('#video-count').textContent = VIDEOS.length; // follows videos.json, nothing to update by hand
 function start(){
