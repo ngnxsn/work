@@ -189,7 +189,16 @@ body.fine .cursor{display:block}
 .viewer-nav{position:absolute;right:28px;bottom:calc(var(--tl) + 24px);display:flex;gap:8px}
 .viewer-nav button{font-family:var(--font-mono);font-size:12px;padding:10px 14px;border-radius:999px;border:1px solid var(--line-2);background:var(--panel)}
 .viewer-nav button:hover{border-color:var(--fg)}
-@media (max-width:719px){.viewer-meta{left:16px;max-width:60vw}.viewer-meta h3{font-size:22px}.viewer-close{right:16px}.viewer-nav{right:16px}}
+@media (max-width:719px){
+  .viewer::before{content:"";position:absolute;inset:0;background:rgba(8,8,8,.86);opacity:0;transition:opacity .35s}
+  .viewer.open::before{opacity:1}
+  .viewer-meta{left:12px;top:calc(var(--hud) + 10px);max-width:calc(100% - 128px);padding:10px 12px}
+  .viewer-meta h3{font-size:18px;margin:6px 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .viewer-meta .chip{font-size:11px;padding:4px 10px}
+  .viewer-close{right:12px;top:calc(var(--hud) + 10px);padding:8px 12px}
+  .viewer-nav{left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));justify-content:space-between}
+  .viewer-nav button{flex:1}
+}
 
 /* ============= BOOT / TOAST ============= */
 .boot{position:fixed;inset:0;z-index:50;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .6s}
@@ -332,6 +341,7 @@ html.no-webgl body > :not(.fallback){display:none !important} /* beats #gl and t
 .profile.open{opacity:1;pointer-events:auto}
 .pf-card{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);grid-template-rows:minmax(0,1fr);width:min(940px,100%);
   height:min(660px,calc(100vh - var(--hud) - 38px)); /* fixed height: the text column scrolls, the photo always fills */
+  height:min(660px,calc(100dvh - var(--hud) - 38px)); /* dvh = visible height, excluding mobile browser toolbars */
   border-radius:18px;overflow:hidden;background:var(--panel);border:1px solid var(--line-2);box-shadow:0 40px 100px rgba(0,0,0,.55);
   transform-origin:24px 0;transform:translateY(-10px) scale(.96);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
 .profile.open .pf-card{transform:none}
@@ -366,7 +376,7 @@ html.no-webgl body > :not(.fallback){display:none !important} /* beats #gl and t
 .pf-links .pf-contact:hover{background:var(--brand-2)}
 @media (max-width:719px){
   .profile{padding:calc(var(--hud) + 8px) 10px 10px}
-  .pf-card{grid-template-columns:1fr;grid-template-rows:200px auto;height:auto;max-height:calc(100vh - var(--hud) - 18px);overflow:auto}
+  .pf-card{grid-template-columns:1fr;grid-template-rows:200px auto;height:auto;max-height:calc(100vh - var(--hud) - 18px);max-height:calc(100dvh - var(--hud) - 18px);overflow:auto}
   .pf-photo{min-height:200px}
   .pf-body{padding:18px 18px 22px;overflow:visible}
   .pf-skills div,.pf-tools div{grid-template-columns:1fr;gap:4px}

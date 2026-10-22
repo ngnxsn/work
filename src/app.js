@@ -745,8 +745,9 @@ function layout(animate){
   elCaption.style.left = L.deckX + 'px';
   elCaption.style.top = (V.h / 2 - L.deckY + deckH / 2 + 34 - V.hud) + 'px';
   elCaption.style.display = m ? 'none' : '';
-  if (m){ elIntro.style.justifyContent = 'flex-start'; elIntro.style.paddingTop = '24px'; }
-  else { elIntro.style.justifyContent = ''; elIntro.style.paddingTop = ''; }
+  // mobile: the copy ends above the deck (fitScenes shrinks it if it does not fit)
+  if (m){ elIntro.style.justifyContent = 'flex-start'; elIntro.style.paddingTop = '24px'; elIntro.style.paddingBottom = (deckH + 28 + 28) + 'px'; }
+  else { elIntro.style.justifyContent = ''; elIntro.style.paddingTop = ''; elIntro.style.paddingBottom = ''; }
 
   // video chapter header
   const pad = m ? 20 : 80;
@@ -876,8 +877,25 @@ function layout(animate){
   elEnd.style.left = L.endX + 'px'; elEnd.style.width = endW + 'px';
   L.worldEnd = L.endX + endW + (m ? 20 : 100);
   maxScroll = Math.max(0, L.worldEnd - V.w);
+  fitScenes();
   target = clamp(target, 0, maxScroll);
   buildTimeline();
+}
+
+// On short screens (phones with browser toolbars) a chapter's text can be taller than the gap
+// between HUD and timeline. Zoom its contents down to fit rather than let the timeline cover it.
+function fitScenes(){
+  track.querySelectorAll('.scene').forEach(el => {
+    const kids = [...el.children];
+    kids.forEach(k => { k.style.zoom = ''; });
+    // measure the children themselves: scrollHeight handles padding differently per browser
+    const cs = getComputedStyle(el);
+    const space = el.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    const rects = kids.map(c => c.getBoundingClientRect()).filter(r => r.height);
+    if (!rects.length) return;
+    const k = space / (Math.max(...rects.map(r => r.bottom)) - Math.min(...rects.map(r => r.top)) + 8);
+    if (k < 1) kids.forEach(c => { c.style.zoom = Math.max(.55, k * .97).toFixed(3); });
+  });
 }
 
 /* ============= CHAPTERS / TIMELINE ============= */
@@ -1207,8 +1225,9 @@ function videoAspect(id){
 function frameRect(aspect){
   // desktop: leave room for the meta panel on the left where the screen allows it;
   // mobile: the meta panel sits on top and the prev/next buttons below, so fit between them
-  const top = V.mobile ? $('.viewer-meta').getBoundingClientRect().bottom + 12 : V.hud + 16;
-  const bottom = V.mobile ? V.h - V.tl - 76 : V.h - V.tl - 16;
+  // (on mobile the viewer covers the timeline too, so the video gets the full height)
+  const top = V.mobile ? Math.max($('.viewer-meta').getBoundingClientRect().bottom, $('#vw-close').getBoundingClientRect().bottom) + 12 : V.hud + 16;
+  const bottom = V.mobile ? $('.viewer-nav').getBoundingClientRect().top - 12 : V.h - V.tl - 16;
   const maxW = V.mobile ? V.w * .92 : Math.max(V.w * .5, Math.min(V.w * .58, V.w - 2 * 400));
   const maxH = V.mobile ? bottom - top : V.avail * .84;
   let w = maxW, h = w / aspect;
@@ -1459,6 +1478,7 @@ function start(){
   gridCards.forEach(c => c.vis = 1);
   buildDust();
   document.fonts.ready.then(() => {
+    fitScenes(); // real fonts change text heights
     drawMat(L.TW, L.TH);
     drawGraphBg(L.GW, L.GH);
     drawCareerBg();
