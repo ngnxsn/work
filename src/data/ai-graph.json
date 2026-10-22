@@ -1,0 +1,145 @@
+{
+  "nodes": [
+    {
+      "key": "brief",
+      "title": "Brief",
+      "lines": [
+        "Sản phẩm · USP",
+        "Insight khách hàng",
+        "Kênh: TikTok / FB / Web"
+      ],
+      "color": "#EFE7D6",
+      "fx": -0.45,
+      "fy": 0.02
+    },
+    {
+      "key": "idea",
+      "title": "Creative Ideation",
+      "lines": [
+        "Claude · ChatGPT",
+        "Concept · Script",
+        "Moodboard"
+      ],
+      "color": "#9B8CFF",
+      "fx": -0.27,
+      "fy": -0.02
+    },
+    {
+      "key": "image",
+      "title": "AI Image Prompting",
+      "lines": [
+        "Nano Banana Pro",
+        "ChatGPT Images 2.0",
+        "Photoshop retouch"
+      ],
+      "color": "#D97757",
+      "fx": -0.08,
+      "fy": 0.25
+    },
+    {
+      "key": "voice",
+      "title": "Voice & Sound",
+      "lines": [
+        "ElevenLabs",
+        "Audition"
+      ],
+      "color": "#E3B341",
+      "fx": 0.11,
+      "fy": -0.1
+    },
+    {
+      "key": "video",
+      "title": "AI Video Workflow",
+      "lines": [
+        "Sora · Kling AI",
+        "Runway · Wan 3.0",
+        "Seedance 2.5 · Minimax H3",
+        "Google Omni"
+      ],
+      "color": "#5FB3D9",
+      "fx": 0.11,
+      "fy": 0.2,
+      "action": "ai-video"
+    },
+    {
+      "key": "code",
+      "title": "Vibe Coding",
+      "lines": [
+        "Claude Code / Design",
+        "Visual Studio",
+        "Landing pages"
+      ],
+      "color": "#E07AA8",
+      "fx": -0.08,
+      "fy": -0.3
+    },
+    {
+      "key": "edit",
+      "title": "Edit & Finish",
+      "lines": [
+        "Premiere · After Effects",
+        "DaVinci · CapCut",
+        "Blender 3D"
+      ],
+      "color": "#6FBF8E",
+      "fx": 0.29,
+      "fy": 0.05
+    },
+    {
+      "key": "out",
+      "title": "Output",
+      "lines": [
+        "Ads creative",
+        "Social content",
+        "Landing page"
+      ],
+      "color": "#D97757",
+      "fx": 0.46,
+      "fy": -0.04,
+      "action": "contact",
+      "solid": true
+    }
+  ],
+  "edges": [
+    [
+      "brief",
+      "idea"
+    ],
+    [
+      "idea",
+      "image"
+    ],
+    [
+      "idea",
+      "voice"
+    ],
+    [
+      "idea",
+      "code"
+    ],
+    [
+      "image",
+      "video"
+    ],
+    [
+      "image",
+      "code"
+    ],
+    [
+      "video",
+      "edit"
+    ],
+    [
+      "voice",
+      "edit"
+    ],
+    [
+      "edit",
+      "out"
+    ],
+    [
+      "code",
+      "out"
+    ]
+  ]
+}

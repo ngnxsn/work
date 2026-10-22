@@ -1,0 +1,36 @@
+[
+  {
+    "lines": [
+      "BRIEF →",
+      "Key visual",
+      "Banner · Poster",
+      "Social post"
+    ],
+    "color": "#EFE7D6",
+    "fx": -0.42,
+    "fy": -0.3,
+    "rot": -0.1
+  },
+  {
+    "lines": [
+      "Photoshop",
+      "Illustrator",
+      "/ daily"
+    ],
+    "color": "#D97757",
+    "fx": 0.16,
+    "fy": 0.34,
+    "rot": 0.08
+  },
+  {
+    "lines": [
+      "Xem thêm",
+      "trên Behance ↗"
+    ],
+    "color": "#E3B341",
+    "fx": 0.43,
+    "fy": -0.29,
+    "rot": 0.06,
+    "url": "https://www.behance.net/ngnxsn"
+  }
+]

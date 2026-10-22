@@ -1,0 +1,26 @@
+{
+  "motion": {
+    "label": "Motion",
+    "color": "#D97757"
+  },
+  "ads": {
+    "label": "Ads Video",
+    "color": "#E3B341"
+  },
+  "ai": {
+    "label": "AI Video",
+    "color": "#9B8CFF"
+  },
+  "product": {
+    "label": "Product",
+    "color": "#6FBF8E"
+  },
+  "short": {
+    "label": "Short",
+    "color": "#5FB3D9"
+  },
+  "animation": {
+    "label": "Animation",
+    "color": "#E07AA8"
+  }
+}

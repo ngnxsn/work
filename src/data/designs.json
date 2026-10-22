@@ -1,0 +1,47 @@
+[
+  {
+    "title": "Promix Key Visual",
+    "label": "Key Visual",
+    "img": "https://raw.githubusercontent.com/ngnxsn/portfolio-old/refs/heads/main/c3d92f207644587.Y3JvcCw5NjYsNzU2LDE1NSww.png",
+    "url": "https://www.behance.net/gallery/207644587/KEY-VISUAL-PROMIX",
+    "fx": -0.34,
+    "fy": 0.1,
+    "rot": -0.06
+  },
+  {
+    "title": "Kinshy Social Media",
+    "label": "Social Media",
+    "img": "https://raw.githubusercontent.com/ngnxsn/portfolio-old/refs/heads/main/54494d202440931.Y3JvcCwxOTk5LDE1NjQsMCwyMDc.jpg",
+    "url": "https://www.behance.net/gallery/202440931/SOCIAL-MEDIA-POST-KINSHY-SPA-(updating)",
+    "fx": -0.15,
+    "fy": -0.16,
+    "rot": 0.05
+  },
+  {
+    "title": "Ford Transit — Phiêu Lưu Ký",
+    "label": "Campaign",
+    "img": "designs/ford-transit-phieu-luu-ky.jpg",
+    "url": "https://www.behance.net/gallery/227350411/Ford-Transit-Phieu-Luu-Ky",
+    "fx": -0.08,
+    "fy": 0.17,
+    "rot": -0.04
+  },
+  {
+    "title": "Nineshield Sale Campaign",
+    "label": "E-commerce · 6/2024",
+    "img": "designs/nineshield-sale-campaign.jpg",
+    "url": "https://www.behance.net/gallery/199022125/Nineshield-Sale-Campaign-Ecommerce-Project-(62024)",
+    "fx": 0.13,
+    "fy": -0.1,
+    "rot": 0.06
+  },
+  {
+    "title": "Nineshield Ecommerce",
+    "label": "E-commerce",
+    "img": "https://raw.githubusercontent.com/ngnxsn/portfolio-old/refs/heads/main/81a15a189158417.Y3JvcCwxODEyLDE0MTgsMzEsMA.jpg",
+    "url": "https://www.behance.net/gallery/189158417/Nineshield-Ecommerce-Design-(Tt-2024)",
+    "fx": 0.32,
+    "fy": 0.12,
+    "rot": -0.04
+  }
+]

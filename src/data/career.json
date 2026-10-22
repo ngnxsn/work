@@ -1,0 +1,133 @@
+{
+  "now": null,
+  "lanes": [
+    {
+      "key": "side",
+      "label": "V3 · SIDE"
+    },
+    {
+      "key": "work",
+      "label": "V2 · WORK"
+    },
+    {
+      "key": "edu",
+      "label": "A1 · EDU"
+    }
+  ],
+  "items": [
+    {
+      "track": "edu",
+      "from": [
+        2018,
+        9
+      ],
+      "to": [
+        2022,
+        6
+      ],
+      "when": "2018 — 2022",
+      "title": "ĐH Công Nghiệp Việt — Hung",
+      "tag": "Graphic Design",
+      "role": "Tốt nghiệp ngành Thiết Kế Đồ Họa",
+      "desc": "Nền tảng bài bản về color, composition, typography và tư duy thị giác.",
+      "color": "#EFE7D6"
+    },
+    {
+      "track": "work",
+      "from": [
+        2022,
+        2
+      ],
+      "to": [
+        2023,
+        1
+      ],
+      "when": "2/2022 — 1/2023",
+      "title": "Hưng Thịnh",
+      "tag": "Design · Video",
+      "role": "Thiết kế & quay dựng → Trưởng nhóm Media",
+      "desc": "Triển khai bộ nhận diện, bao bì, hình ảnh sản phẩm, video quảng cáo, banner website và nội dung cho sàn thương mại điện tử.",
+      "color": "#D97757"
+    },
+    {
+      "track": "edu",
+      "from": [
+        2022,
+        7
+      ],
+      "to": null,
+      "when": "Ongoing",
+      "title": "Visual Thinking — Thực chiến",
+      "tag": "On-the-job",
+      "role": "Tự rèn qua dự án thật",
+      "desc": "Tiếp tục được thực hành qua công việc thật: môi trường ads, social content, quay dựng và sản xuất cho marketing hằng ngày.",
+      "color": "#EFE7D6"
+    },
+    {
+      "track": "side",
+      "from": [
+        2023,
+        1
+      ],
+      "to": [
+        2023,
+        4
+      ],
+      "when": "1/2023 — 4/2023",
+      "title": "Hadar Studios",
+      "tag": "Co-founder",
+      "role": "Đồng sáng lập dự án cá nhân",
+      "desc": "Phát triển dịch vụ thiết kế, chụp ảnh, quay dựng video và landing page cho cá nhân, thương hiệu và mô hình kinh doanh online.",
+      "color": "#9B8CFF",
+      "url": "https://hadarstudios.com"
+    },
+    {
+      "track": "work",
+      "from": [
+        2023,
+        5
+      ],
+      "to": [
+        2024,
+        6
+      ],
+      "when": "5/2023 — 6/2024",
+      "title": "Hoàng Kim Cosmetic / Deva Cell",
+      "tag": "Media Lead",
+      "role": "Trưởng nhóm Media",
+      "desc": "Quản lý và sản xuất nội dung thiết kế, ảnh chụp, video sản phẩm, video quảng cáo và short-form content cho TikTok / Facebook.",
+      "color": "#E3B341"
+    },
+    {
+      "track": "work",
+      "from": [
+        2024,
+        7
+      ],
+      "to": [
+        2026,
+        3
+      ],
+      "when": "7/2024 — 3/2026",
+      "title": "JIMIN",
+      "tag": "Ads Video",
+      "role": "Nhân viên quay — dựng",
+      "desc": "Phụ trách video ads cho các ngành phong thủy, thẩm mỹ không xâm lấn, giảm béo và detox cơ thể.",
+      "color": "#5FB3D9"
+    },
+    {
+      "track": "side",
+      "from": [
+        2026,
+        4
+      ],
+      "to": null,
+      "when": "2026 — Hiện tại",
+      "title": "ITPLUS",
+      "tag": "Giảng dạy",
+      "role": "Giảng dạy online",
+      "desc": "Giảng dạy online các khoá học về thiết kế, quay dựng, AI for marketing.",
+      "color": "#6FBF8E"
+    }
+  ]
+}
