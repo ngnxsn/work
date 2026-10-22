@@ -740,6 +740,7 @@ function layout(animate){
   const deckH = deckCardH(V.avail, V.w, m);
   L.deckX = m ? V.w * .5 : V.w * .73;
   // mobile: deck sits on the bottom edge of the content area, under the copy
+  L.deckH = deckH;
   L.deckY = m ? V.h / 2 - (V.h - V.tl - deckH / 2 - 28) : V.y0 + 10;
   deckCards.forEach(c => c.setSize(deckH));
   elCaption.style.left = L.deckX + 'px';
@@ -877,13 +878,22 @@ function layout(animate){
   elEnd.style.left = L.endX + 'px'; elEnd.style.width = endW + 'px';
   L.worldEnd = L.endX + endW + (m ? 20 : 100);
   maxScroll = Math.max(0, L.worldEnd - V.w);
-  fitScenes();
+  fitScenes(); placeDeck();
   target = clamp(target, 0, maxScroll);
   buildTimeline();
 }
 
 // On short screens (phones with browser toolbars) a chapter's text can be taller than the gap
 // between HUD and timeline. Zoom its contents down to fit rather than let the timeline cover it.
+// mobile: centre the deck in the space left between the intro copy and the timeline
+function placeDeck(){
+  if (!V.mobile) return;
+  const rects = [...elIntro.children].map(c => c.getBoundingClientRect()).filter(r => r.height);
+  if (!rects.length) return;
+  const top = Math.max(...rects.map(r => r.bottom)), bottom = V.h - V.tl;
+  const cy = Math.min((top + bottom) / 2, bottom - L.deckH / 2 - 28);
+  L.deckY = V.h / 2 - cy;
+}
 function fitScenes(){
   track.querySelectorAll('.scene').forEach(el => {
     const kids = [...el.children];
@@ -1478,7 +1488,7 @@ function start(){
   gridCards.forEach(c => c.vis = 1);
   buildDust();
   document.fonts.ready.then(() => {
-    fitScenes(); // real fonts change text heights
+    fitScenes(); placeDeck(); // real fonts change text heights
     drawMat(L.TW, L.TH);
     drawGraphBg(L.GW, L.GH);
     drawCareerBg();
