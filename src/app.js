@@ -1152,7 +1152,7 @@ function setProfile(open){
 }
 avatarBtn.addEventListener('click', () => { if (viewing) closeViewer(true); setProfile(!profileOpen); });
 $('#pf-close').addEventListener('click', () => setProfile(false));
-profileEl.addEventListener('pointerdown', e => { if (e.target === profileEl) setProfile(false); }); // click outside the card
+profileEl.addEventListener('click', e => { if (e.target === profileEl) setProfile(false); }); // tap outside the card; on click, not pointerdown, so the tap cannot fall through to the HUD once the overlay lets go
 $('#pf-contact').addEventListener('click', () => { setProfile(false); $('#hud-contact').click(); });
 
 // HUD contact button: tua straight to chapter 05 (it used to be a mailto link, which does nothing without a mail app)
@@ -1340,7 +1340,7 @@ function stepViewer(dir){
 $('#vw-close').addEventListener('click', () => closeViewer());
 $('#vw-prev').addEventListener('click', () => stepViewer(-1));
 $('#vw-next').addEventListener('click', () => stepViewer(1));
-viewer.addEventListener('pointerdown', e => { if (e.target === viewer) closeViewer(); });
+viewer.addEventListener('click', e => { if (e.target === viewer) closeViewer(); }); // click: see the profile overlay
 
 /* ============= CAREER PLAYHEAD + MONITOR ============= */
 // The page's own scroll drives the sequence: the screen center is the playhead.
