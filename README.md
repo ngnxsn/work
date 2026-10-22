@@ -21,7 +21,7 @@ Toàn bộ nội dung nằm trong `src/data/`, không cần đụng vào code 3D
 | `categories.json` | Nhãn và màu của từng loại video (bộ lọc, viền sáng, timeline) |
 | `designs.json` | Bản in trên bàn soi: `img`, `url` Behance; `fx`/`fy` là vị trí theo tỉ lệ bàn (-0.5…0.5), `rot` là góc nghiêng (radian) |
 | `notes.json` | Giấy note trên bàn soi; note có `url` thì bấm vào sẽ mở link |
-| `ai-graph.json` | `nodes`: các node pipeline AI (`fx`/`fy` như trên; `action` có thể là `ai-video` hoặc `contact`). `edges`: cặp `[từ, tới]` theo `key` |
+| `ai-graph.json` | `nodes`: các node pipeline AI (`fx`/`fy` như trên). `edges`: cặp `[từ, tới]` theo `key` |
 | `career.json` | `items`: các chặng, `from`/`to` là `[năm, tháng]`, `to: null` = đang chạy; `track` là `work`, `side` hoặc `edu`; `when` là nhãn hiển thị. `now: null` = lấy tháng hiện tại |
 
 Các thiết lập khác (email, 5 video showreel ở intro, link Cloudinary) nằm trong `src/config.js`.

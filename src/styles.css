@@ -183,9 +183,6 @@ body.fine .cursor{display:block}
 .viewer-meta{position:absolute;z-index:2;left:28px;top:calc(var(--hud) + 24px);max-width:min(340px,40vw);padding:16px 18px;border-radius:14px;
   background:rgba(23,20,17,.82);backdrop-filter:blur(10px);border:1px solid var(--line)}
 .viewer-meta h3{font-family:var(--font-display);font-size:clamp(28px,3vw,44px);font-weight:800;letter-spacing:-.03em;line-height:1;margin:12px 0 14px}
-.viewer-link{display:inline-block;margin-top:16px;font-size:14px;font-weight:600;padding:11px 16px;border-radius:999px;background:var(--brand);color:#fff}
-.viewer-link:hover{background:var(--brand-2)}
-.viewer-link[hidden]{display:none} /* the display rule above would otherwise override [hidden] */
 .viewer-close{position:absolute;right:28px;top:calc(var(--hud) + 24px);font-family:var(--font-mono);font-size:12px;letter-spacing:.1em;
   padding:10px 16px;border-radius:999px;border:1px solid var(--line-2);background:var(--panel)}
 .viewer-close:hover{border-color:var(--brand);color:var(--brand)}

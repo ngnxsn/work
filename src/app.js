@@ -550,14 +550,13 @@ class Card {
   buildNodeEl(){
     const n = this.data;
     const darkText = ['#EFE7D6', '#E3B341', '#6FBF8E', '#5FB3D9'].includes(n.color);
-    const aiClips = VIDEOS.filter(v => v.cat === 'ai').length;
     const el = document.createElement('div');
     el.className = 'node3d' + (n.solid ? ' solid' : '');
     el.style.width = NODE_TEX_W + 'px'; el.style.height = nodeTexH(n) + 'px';
     el.style.setProperty('--c', n.color);
     el.style.setProperty('--on-c', darkText ? '#14110C' : '#fff');
     el.innerHTML = `<div class="nd-body">
-        <header><small>N${String(this.index + 1).padStart(2, '0')}${n.action === 'ai-video' ? ` · ${aiClips} CLIP ↗` : ''}</small><b>${n.title}</b></header>
+        <header><small>N${String(this.index + 1).padStart(2, '0')}</small><b>${n.title}</b></header>
         <ul>${n.lines.map(l => `<li>${l}</li>`).join('')}</ul>
       </div><i class="nd-port in"></i><i class="nd-port out"></i>`;
     return el;
@@ -1131,14 +1130,8 @@ $('#ct-copy').addEventListener('click', () => {
 
 function activate(c){
   if (c.kind === 'video') openCard(c);
-  else if (c.kind === 'print') openPrint(c);
+  else if (c.kind === 'print') window.open(c.data.url, '_blank', 'noopener'); // the print is only a cover: open the full case
   else if (c.kind === 'clip'){ target = clamp(surfaceWorldX(c) - V.w / 2, 0, maxScroll); c.flash = 1; } // seek the playhead onto it
-  else if (c.data.action === 'ai-video'){ // jump back to the reel, filtered to AI clips
-    filter = 'ai'; buildFilters(); layout(true);
-    target = clamp(L.videoStart, 0, maxScroll);
-    toast('Đang lọc các clip AI Video');
-  }
-  else if (c.data.action === 'contact') target = maxScroll;
   else if (c.data.url) window.open(c.data.url, '_blank', 'noopener');
   else if (!reduce) gsap.fromTo(c.base, {rot:c.base.rot - .08}, {rot:c.base.rot, duration:.6, ease:'elastic.out(1.2,.4)'});
 }
@@ -1164,7 +1157,7 @@ function updateHover(){
     if (onClap){ cursorLabel.textContent = 'ACTION'; cursorTitle.innerHTML = 'Clapperboard<small>bấm để hô diễn</small>'; }
   }
 }
-const CURSOR_LABEL = {video:'PLAY', print:'VIEW', note:'DRAG', node:'DRAG', clip:'SEEK'};
+const CURSOR_LABEL = {video:'PLAY', print:'OPEN', note:'DRAG', node:'DRAG', clip:'SEEK'};
 function setHovered(c){
   if (c === hovered) return;
   if (hovered && hovered.deckSlot !== 2) hovered.pause();
@@ -1173,10 +1166,10 @@ function setHovered(c){
   if (c && c.kind === 'video') videoAspect(c.data.id); // warm the cache for openCard
   cursorEl.classList.toggle('on-card', !!c);
   if (c){
-    const opens = (c.kind === 'note' && c.data.url) || (c.kind === 'node' && c.data.action);
+    const opens = c.kind === 'note' && c.data.url;
     cursorLabel.textContent = opens ? 'OPEN' : CURSOR_LABEL[c.kind];
-    const hint = c.kind === 'print' ? 'kéo · bấm để xem'
-      : c.kind === 'node' ? (c.data.action === 'ai-video' ? 'bấm: xem clip AI' : c.data.action === 'contact' ? 'bấm: liên hệ' : 'kéo để sắp lại')
+    const hint = c.kind === 'print' ? 'kéo · bấm mở Behance ↗'
+      : c.kind === 'node' ? 'kéo để sắp lại'
       : c.kind === 'clip' ? c.data.when
       : c.label;
     cursorTitle.innerHTML = `${c.title}<small>${hint}</small>`;
@@ -1199,7 +1192,7 @@ function updateCursor(){
 }
 
 /* ============= VIEWER ============= */
-const viewer = $('#viewer'), vwFrame = $('#vw-frame'), vwLink = $('#vw-link');
+const viewer = $('#viewer'), vwFrame = $('#vw-frame');
 const metaCache = {};
 function videoAspect(id){
   if (metaCache[id]) return Promise.resolve(metaCache[id]);
@@ -1223,14 +1216,12 @@ function frameRect(aspect){
   const cy = V.mobile ? (top + bottom) / 2 : V.cy;
   return {w, h, x:(V.w - w) / 2, y:cy - h / 2};
 }
-function showMeta(card, idx, total, isPrint){
+function showMeta(card){
   viewer.setAttribute('aria-hidden', 'false');
-  $('#vw-idx').textContent = `${isPrint ? 'PRINT' : 'CLIP'} ${String(idx + 1).padStart(2, '0')} / ${total}`;
+  $('#vw-idx').textContent = `CLIP ${String(card.index + 1).padStart(2, '0')} / ${VIDEOS.length}`;
   $('#vw-title').textContent = card.title;
   $('#vw-cat').innerHTML = `<i></i>${card.label}`;
-  $('#vw-cat').style.setProperty('--c', isPrint ? '#EFE7D6' : CATS[card.data.cat].color);
-  vwLink.hidden = !isPrint;
-  if (isPrint) vwLink.href = card.data.url;
+  $('#vw-cat').style.setProperty('--c', CATS[card.data.cat].color);
   dimTarget = 1;
   track.style.transition = 'opacity .4s'; track.style.opacity = .08;
 }
@@ -1254,9 +1245,9 @@ function morphFrame(from, to, done){
     {left:from.x, top:from.y, width:from.w, height:from.h},
     {left:to.x, top:to.y, width:to.w, height:to.h, duration:reduce ? 0 : .6, ease:'power3.inOut', onComplete:done});
 }
-function openViewer(card, aspect, isPrint){
+function openViewer(card, aspect){
   viewing = card; setHovered(null);
-  showMeta(card, card.index, isPrint ? printCards.length : VIDEOS.length, isPrint);
+  showMeta(card);
   // a clone of the card's own, already decoded <img>, so the first frame is never blank
   const poster = card.css.element.querySelector('img').cloneNode();
   poster.className = 'vw-poster'; poster.alt = card.title;
@@ -1267,22 +1258,16 @@ function openViewer(card, aspect, isPrint){
   viewer.classList.add('open');
   morphFrame(cardScreenRect(card), frameRect(aspect), () => {
     if (viewing !== card) return;
-    if (!isPrint){
-      vwFrame.insertAdjacentHTML('beforeend', `<iframe src="${embedURL(card.data.id)}" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" title="${card.title}"></iframe>`);
-      const f = vwFrame.querySelector('iframe');
-      f.addEventListener('load', () => f.classList.add('ready'));
-    }
+    vwFrame.insertAdjacentHTML('beforeend', `<iframe src="${embedURL(card.data.id)}" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" title="${card.title}"></iframe>`);
+    const f = vwFrame.querySelector('iframe');
+    f.addEventListener('load', () => f.classList.add('ready'));
     $('#vw-close').focus({preventScroll:true});
   });
 }
 async function openCard(card){
   if (viewing) return;
   const aspect = await videoAspect(card.data.id); // usually cached: prefetched on hover
-  if (!viewing) openViewer(card, aspect, false);
-}
-function openPrint(card){
-  if (viewing) return;
-  openViewer(card, card.aspect, true);
+  if (!viewing) openViewer(card, aspect);
 }
 function closeViewer(instant = false){
   const card = viewing; if (!card) return;
@@ -1302,7 +1287,7 @@ function closeViewer(instant = false){
 }
 function stepViewer(dir){
   if (!viewing) return;
-  const list = viewing.kind === 'print' ? printCards : viewing.deckSlot >= 0 ? deckCards : visibleCards();
+  const list = viewing.deckSlot >= 0 ? deckCards : visibleCards();
   const i = list.indexOf(viewing);
   const next = list[(i + dir + list.length) % list.length];
   closeViewer(true);
