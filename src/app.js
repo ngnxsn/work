@@ -494,8 +494,8 @@ class Card {
     el.append(img);
     this.loadImg(img, [o.thumb, o.thumb, o.thumbFallback].filter(Boolean)); // object-fit crops the uncropped fallback
     if (this.deckSlot < 0){ // name bar along the bottom edge of reel cards
-      const date = (d.id.match(/^(\d{1,2})\.(\d{1,2})[-_]/) || []).slice(1).join('/'); // ids start with day.month
-      el.insertAdjacentHTML('beforeend', `<div class="vbar"><b>${this.title}</b>${date ? `<span>${date}</span>` : ''}</div>`);
+      const month = (d.id.match(/^\d{1,2}\.(\d{1,2})[-_]/) || [])[1]; // ids start with day.month; "13/10" read like a fraction, "T10" reads as a month
+      el.insertAdjacentHTML('beforeend', `<div class="vbar"><b>${this.title}</b>${month ? `<span>T${month}</span>` : ''}</div>`);
     }
     return el;
   }
@@ -747,7 +747,7 @@ function layout(animate){
   deckCards.forEach(c => c.setSize(deckH));
   elCaption.style.left = L.deckX + 'px';
   elCaption.style.top = (V.h / 2 - L.deckY + deckH / 2 + 34 - V.hud) + 'px';
-  elCaption.style.display = m ? 'none' : '';
+  // on mobile placeDeck moves it under the deck; it is the only swipe cue there (the intro hint is hidden)
   // mobile: the copy ends above the deck (fitScenes shrinks it if it does not fit)
   if (m){ elIntro.style.justifyContent = 'flex-start'; elIntro.style.paddingTop = '24px'; elIntro.style.paddingBottom = (deckH + 28 + 28) + 'px'; }
   else { elIntro.style.justifyContent = ''; elIntro.style.paddingTop = ''; elIntro.style.paddingBottom = ''; }
@@ -898,6 +898,8 @@ function placeDeck(){
   const bottom = Math.min(V.h - V.tl, $('#timeline') ? $('#timeline').getBoundingClientRect().top : Infinity);
   const cy = Math.min((top + bottom) / 2, bottom - L.deckH / 2 - 28);
   L.deckY = V.h / 2 - cy;
+  elCaption.style.zoom = '';
+  elCaption.style.top = (Math.min(cy + L.deckH / 2 + 14, bottom - 16) - V.hud) + 'px';
   if (DEBUG) showDebug({inner:innerHeight, gl:canvas.clientHeight, vv:window.visualViewport && Math.round(visualViewport.height), copy:Math.round(top), zoom:elIntro.querySelector('.intro-copy').style.zoom || 1, tl:Math.round(bottom), deckH:Math.round(L.deckH), cy:Math.round(cy)});
 }
 // ?debug prints the layout numbers on screen, for checking phones we cannot attach to
@@ -909,7 +911,8 @@ function showDebug(o){
 }
 function fitScenes(){
   track.querySelectorAll('.scene').forEach(el => {
-    const kids = [...el.children].filter(c => c.id !== 'intro-end');
+    // the mobile deck caption is placed by placeDeck, under the deck: it is not part of the copy to fit
+    const kids = [...el.children].filter(c => c.id !== 'intro-end' && !(V.mobile && c === elCaption));
     kids.forEach(k => { k.style.zoom = ''; });
     // measure the children themselves: scrollHeight handles padding differently per browser
     const cs = getComputedStyle(el);
@@ -1112,7 +1115,8 @@ canvas.addEventListener('pointerup', () => {
   }
   if (!drag) return;
   if (!drag.moved){ if (hovered) activate(hovered); else if (clapState.hovered) clapAction(); }
-  else if (!reduce) target = clamp(target - drag.v * 260, 0, maxScroll); // flick inertia
+  // flick inertia, capped near one screen so a hard swipe on a phone cannot fly past a whole chapter
+  else if (!reduce) target = clamp(target - clamp(drag.v * 260, -V.w * .8, V.w * .8), 0, maxScroll);
   drag = null;
 });
 canvas.addEventListener('pointercancel', () => { drag = null; cardDrag = null; });

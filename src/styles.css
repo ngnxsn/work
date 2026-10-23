@@ -7,9 +7,10 @@
   --line-2:rgba(239,231,214,.16);
   --fg:#EFE7D6;
   --muted:#9E9480;
-  --subtle:#6F6756;
+  --subtle:#8A8170; /* 5:1 on --ink, 4.8:1 on --panel: it carries 9–11px labels */
   --brand:#D97757;
   --brand-2:#E3814A;
+  /* text on --brand fills is --ink (6.2:1); white on it is only 3.1:1 */
   --hud:64px;
   --tl:132px;
   --font-display:"Bricolage Grotesque","Be Vietnam Pro",system-ui,sans-serif;
@@ -49,7 +50,7 @@ body.fine #gl{cursor:none}
 .hud-c b{color:var(--fg);font-weight:500}
 .tc{font-family:var(--font-mono);font-size:15px;font-variant-numeric:tabular-nums;color:var(--fg)}
 .btn-contact{font-size:13px;font-weight:600;padding:9px 16px;border-radius:999px;background:var(--fg);color:var(--ink);transition:background .2s}
-.btn-contact:hover{background:var(--brand);color:#fff}
+.btn-contact:hover{background:var(--brand);color:var(--ink)}
 @media (max-width:719px){.hud{padding:0 14px}.hud-title,.hud-c{display:none}.tc{font-size:13px}.btn-contact{padding:8px 12px;font-size:12px}}
 
 /* ============= TRACK (DOM in world space) ============= */
@@ -100,6 +101,10 @@ body.fine #gl{cursor:none}
 .chip.on small{color:var(--subtle)}
 .small{font-size:11px;color:var(--subtle)}
 .nw{white-space:nowrap} /* keep a phrase together when a headline wraps */
+/* hints that name the gesture: mouse wording on fine pointers, touch wording everywhere else */
+.on-touch{display:none}
+body:not(.fine) .on-fine{display:none}
+body:not(.fine) .on-touch{display:inline}
 .tags{display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 24px}
 .tags span{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;padding:6px 10px;border-radius:6px;border:1px solid var(--line-2);color:var(--muted)}
 .sw-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:0 0 18px;max-width:420px}
@@ -115,8 +120,8 @@ body.fine #gl{cursor:none}
 .end-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
 .end-links a,.end-links button{font-size:14px;font-weight:500;padding:12px 18px;border-radius:999px;border:1px solid var(--line-2);transition:all .2s}
 .end-links a:hover,.end-links button:hover{border-color:var(--brand);color:var(--brand)}
-.end-links .primary{background:var(--brand);border-color:var(--brand);color:#fff}
-.end-links .primary:hover{background:var(--brand-2);color:#fff}
+.end-links .primary{background:var(--brand);border-color:var(--brand);color:var(--ink)}
+.end-links .primary:hover{background:var(--brand-2);color:var(--ink)}
 
 /* ============= TIMELINE ============= */
 .timeline{position:fixed;left:0;right:0;bottom:0;height:var(--tl);z-index:20;display:flex;
@@ -134,7 +139,7 @@ body.fine #gl{cursor:none}
   display:flex;align-items:center;padding:0 7px;white-space:nowrap;color:var(--ink);font-weight:500;transition:filter .2s}
 .clip:hover{filter:brightness(1.25)}
 .clip.scn-clip{background:var(--fg)}
-.clip.scn-clip.cur{background:var(--brand);color:#fff}
+.clip.scn-clip.cur{background:var(--brand);color:var(--ink)}
 .clip.v{background:var(--c);padding:0;opacity:.85}
 .clip.v.cur{opacity:1;box-shadow:0 0 0 2px var(--fg) inset}
 .clip.ghost{color:var(--subtle);border:1px dashed var(--line-2);
@@ -143,7 +148,7 @@ body.fine #gl{cursor:none}
 .tl-progress{position:absolute;left:0;top:22px;bottom:0;background:rgba(217,119,87,.07);pointer-events:none}
 .playhead{position:absolute;top:0;bottom:0;width:0;pointer-events:none;z-index:2}
 .playhead::before{content:"";position:absolute;top:0;bottom:0;left:-1px;width:2px;background:var(--brand)}
-.playhead span{position:absolute;top:2px;left:0;transform:translateX(-50%);background:var(--brand);color:#fff;
+.playhead span{position:absolute;top:2px;left:0;transform:translateX(-50%);background:var(--brand);color:var(--ink);
   font-family:var(--font-mono);font-size:9px;padding:2px 5px;border-radius:3px;white-space:nowrap}
 @media (max-width:719px){
   .intro{padding:0 20px}.intro-copy{max-width:none}.intro h1{margin:14px 0 18px}
@@ -160,7 +165,7 @@ body.fine .cursor{display:block}
 .cursor.drag::before{transform:scale(2.6);border-color:var(--brand)}
 .cursor.hidden{opacity:0}
 .cursor-label{position:absolute;left:0;top:0;transform:translate(-50%,-50%);font-family:var(--font-mono);font-size:10px;
-  font-weight:700;letter-spacing:.1em;color:#fff;opacity:0;transition:opacity .15s;white-space:nowrap}
+  font-weight:700;letter-spacing:.1em;color:var(--ink);opacity:0;transition:opacity .15s;white-space:nowrap}
 .cursor.on-card .cursor-label,.cursor.drag .cursor-label{opacity:1}
 .cursor-title{position:absolute;left:44px;top:-10px;font-size:13px;font-weight:600;white-space:nowrap;
   padding:6px 10px;border-radius:6px;background:var(--fg);color:var(--ink);opacity:0;transform:translateX(-6px);transition:all .18s}
@@ -212,8 +217,8 @@ body.fine .cursor{display:block}
 .ex-head{display:flex;justify-content:space-between;align-items:center;font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--muted);
   padding-bottom:14px;margin-bottom:16px;border-bottom:1px solid var(--line)}
 .contact-card small{display:block;font-family:var(--font-mono);font-size:9px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--subtle);margin-bottom:4px}
-.ct-mail{display:block;width:100%;text-align:left;padding:16px 18px;border-radius:12px;background:var(--brand);color:#fff;pointer-events:auto;transition:background .2s}
-.ct-mail small{color:rgba(255,255,255,.75)}
+.ct-mail{display:block;width:100%;text-align:left;padding:16px 18px;border-radius:12px;background:var(--brand);color:var(--ink);pointer-events:auto;transition:background .2s}
+.ct-mail small{color:rgba(15,13,11,.8)}
 .ct-mail b{font-family:var(--font-display);font-size:clamp(18px,1.9vw,24px);font-weight:800;letter-spacing:-.01em;word-break:break-all}
 .ct-mail:hover{background:var(--brand-2)}
 .ct-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}
@@ -221,8 +226,8 @@ body.fine .cursor{display:block}
 .ct-grid a:hover{border-color:var(--brand)}
 .ct-grid .ct-hot{background:rgba(217,119,87,.16);border-color:var(--brand);color:var(--fg)} /* Zalo is the quickest way in */
 .ct-grid .ct-hot small{color:var(--brand)}
-.ct-grid .ct-hot:hover{background:var(--brand);color:#fff}
-.ct-grid .ct-hot:hover small{color:rgba(255,255,255,.8)}
+.ct-grid .ct-hot:hover{background:var(--brand);color:var(--ink)}
+.ct-grid .ct-hot:hover small{color:rgba(15,13,11,.8)}
 .ct-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 .ct-links a{font-size:14px;font-weight:500;padding:11px 16px;border-radius:999px;border:1px solid var(--line-2);transition:all .2s}
 .ct-links a:hover{border-color:var(--brand);color:var(--brand)}
@@ -372,7 +377,7 @@ html.no-webgl body > :not(.fallback){display:none !important} /* beats #gl and t
 .pf-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
 .pf-links a,.pf-links button{font-size:13px;font-weight:500;padding:10px 15px;border-radius:999px;border:1px solid var(--line-2);transition:all .2s}
 .pf-links a:hover{border-color:var(--brand);color:var(--brand)}
-.pf-links .pf-contact{background:var(--brand);border-color:var(--brand);color:#fff}
+.pf-links .pf-contact{background:var(--brand);border-color:var(--brand);color:var(--ink)}
 .pf-links .pf-contact:hover{background:var(--brand-2)}
 @media (max-width:719px){
   .profile{padding:calc(var(--hud) + 8px) 10px 10px}
