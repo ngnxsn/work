@@ -9,7 +9,7 @@ import NOTES from './data/notes.json';
 import CATS from './data/categories.json';
 import graphData from './data/ai-graph.json';
 import careerData from './data/career.json';
-import { EMAIL, DECK_IDS, GHOSTS, BUILT, thumbURL, fallbackThumbURL, previewURL, metaURL, embedURL } from './config.js';
+import { EMAIL, PHONE, DECK_IDS, GHOSTS, BUILT, thumbURL, fallbackThumbURL, previewURL, metaURL, embedURL } from './config.js';
 
 const { nodes: NODES, edges: EDGES } = graphData;
 const { lanes: LANES, items: CAREER } = careerData;
@@ -1186,6 +1186,10 @@ $('#hud-contact').addEventListener('click', e => {
 $('#ct-copy').addEventListener('click', () => {
   (navigator.clipboard ? navigator.clipboard.writeText(EMAIL) : Promise.reject())
     .then(() => toast('Đã copy email'), () => toast(EMAIL));
+});
+$('#ct-phone').addEventListener('click', () => {
+  (navigator.clipboard ? navigator.clipboard.writeText(PHONE) : Promise.reject())
+    .then(() => toast('Đã copy số điện thoại'), () => toast($('#ct-phone').lastChild.textContent)); // no clipboard: show it spaced, as on the card
 });
 
 function activate(c){

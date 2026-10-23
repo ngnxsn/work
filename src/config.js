@@ -1,6 +1,7 @@
 // Site-wide settings that are not content. Content lives in ./data/*.json.
 
 export const EMAIL = 'nguyenson.0312vn@gmail.com';
+export const PHONE = '0946831748';
 
 // Intro showreel: indexes into videos.json; the center one (3rd) autoplays.
 export const DECK_IDS = [14, 0, 16, 43, 30];

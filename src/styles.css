@@ -225,7 +225,8 @@ body.fine .cursor{display:block}
 .ct-mail:hover{background:var(--brand-2)}
 .ct-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}
 .ct-grid>*{padding:11px 12px;border-radius:10px;border:1px solid var(--line);font-size:14px;font-weight:500;pointer-events:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:border-color .2s}
-.ct-grid a:hover{border-color:var(--brand)}
+.ct-grid a:hover,.ct-grid button:hover{border-color:var(--brand)}
+.ct-grid button{text-align:left} /* the phone card copies the number, like the email card */
 .ct-grid .ct-hot{background:rgba(217,119,87,.16);border-color:var(--brand);color:var(--fg)} /* Zalo is the quickest way in */
 .ct-grid .ct-hot small{color:var(--brand)}
 .ct-grid .ct-hot:hover{background:var(--brand);color:var(--ink)}
