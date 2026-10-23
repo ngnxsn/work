@@ -402,3 +402,11 @@ html.no-webgl body > :not(.fallback){display:none !important} /* beats #gl and t
 @media (max-height:820px){ #ahead .small{display:none} #ahead .sw b{width:32px;height:32px;font-size:11px} }
 /* keyboard focus: one visible ring for every control (mouse clicks do not show it) */
 a:focus-visible,button:focus-visible,.chip:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+/* reel bin "Xem thêm" / "Thu gọn" tile: an empty slot in the bin, dashed like an offline clip */
+.more3d{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;box-sizing:border-box;border-radius:7.3%/5.5%;
+  border:2px dashed color-mix(in srgb,var(--c) 55%,transparent);background:color-mix(in srgb,var(--c) 8%,#1B1814);color:var(--fg);
+  backface-visibility:hidden;transition:background .2s,border-color .2s}
+.more3d b{font-family:var(--font-display);font-size:34px;font-weight:800;line-height:1;color:var(--c)}
+.more3d span{font-family:var(--font-mono);font-size:11px;color:var(--muted)}
+.more3d small{margin-top:10px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:6px 10px;border-radius:999px;border:1px solid var(--line-2)}
+.more3d.hot{border-style:solid;border-color:var(--c);background:color-mix(in srgb,var(--c) 16%,#1B1814)}

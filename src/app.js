@@ -705,7 +705,20 @@ function measureViewport(){
   scene.fog.near = V.D + 300; scene.fog.far = V.D + 2400;
 }
 
-function visibleCards(){ return gridCards.filter(c => filter === 'all' || c.data.cat === filter); }
+// Under "Tất cả" each bin shows its newest clips only (two columns, the last slot is a "+N · Xem thêm"
+// tile); a bin opens in full when its tile is pressed, or when its filter is picked.
+const expandedBins = new Set();
+const clipKey = c => { // newest first: year and month from date ("T10/26"), day from the id ("13.10-…")
+  const m = (c.data.date || '').match(/T(\d+)\/(\d+)/), day = +(c.data.id.match(/^(\d{1,2})\./) || [])[1] || 0;
+  return m ? +m[2] * 10000 + +m[1] * 100 + day : -1;
+};
+function binCards(cat){
+  const all = gridCards.filter(c => c.data.cat === cat).sort((a, b) => clipKey(b) - clipKey(a));
+  const cap = gridRows(V.avail) * 2;
+  if (filter !== 'all' || all.length <= cap) return {cards:all, more:0};
+  return expandedBins.has(cat) ? {cards:all, more:-1} : {cards:all.slice(0, cap - 1), more:all.length - cap + 1}; // more -1: show "Thu gọn"
+}
+function visibleCards(){ return Object.keys(CATS).filter(cat => filter === 'all' || cat === filter).flatMap(cat => binCards(cat).cards); }
 
 /* ============= REEL BINS ============= */
 // One HTML label per category above its group of cards; it rides the same drum curve as the cards.
@@ -720,9 +733,38 @@ const bins = Object.entries(CATS).map(([cat, info]) => {
     b.drawnFor = n;
     el.innerHTML = `<i></i><b>${info.label.toUpperCase()}</b><span>· ${n} clip</span>`;
   };
+  // the expand / collapse tile, sized like a card and sitting in the bin's next free slot
+  const mel = document.createElement('div');
+  mel.className = 'more3d';
+  mel.style.setProperty('--c', info.color);
+  b.more = {el:mel, css:cssObject(mel), anchor:new THREE.Object3D(), base:{x:0, y:0}, vis:0, n:0};
   return b;
 });
+let moreHovered = null; // the bin whose tile is under the pointer
+function moreUnderPointer(){
+  return bins.find(b => {
+    if (b.more.vis < .5 || !b.more.css.visible) return false;
+    const r = b.more.el.getBoundingClientRect();
+    return pointer.x >= r.left && pointer.x <= r.right && pointer.y >= r.top && pointer.y <= r.bottom;
+  }) || null;
+}
+function toggleBin(b){
+  if (expandedBins.has(b.cat)) expandedBins.delete(b.cat); else expandedBins.add(b.cat);
+  moreHovered = null;
+  layout(true);
+}
 function updateBins(){
+  bins.forEach(b => {
+    const m = b.more;
+    m.css.visible = m.vis > .01 && onScreen(m.base.x, L.cardW);
+    const mz = reelCurve(m.base.x);
+    m.anchor.position.set(m.base.x, m.base.y, mz.z);
+    m.anchor.rotation.set(0, mz.ry, 0);
+    m.anchor.updateMatrixWorld();
+    pinCss(m.css, m.anchor.matrixWorld, 1);
+    m.el.style.opacity = m.vis * (viewing ? 1 - dim * .88 : 1);
+    m.el.classList.toggle('hot', moreHovered === b);
+  });
   bins.forEach(b => {
     b.css.visible = b.vis > .01 && onScreen(b.base.x + BIN_LABEL_W / 2, BIN_LABEL_W);
     const x = b.base.x + BIN_LABEL_W / 2; // label is left-aligned with the bin's first column
@@ -773,9 +815,10 @@ function layout(animate){
   bins.forEach(b => {
     const inBin = list.filter(c => c.data.cat === b.cat);
     const show = inBin.length > 0;
+    const {more} = show ? binCards(b.cat) : {more:0};
     if (show){
       b.home = {x:xLeft, y:blockTop - BIN_LABEL_H / 2 + 2};
-      b.drawLabel(inBin.length);
+      b.drawLabel(gridCards.filter(c => c.data.cat === b.cat).length);
       if (animate && !reduce && b.vis > .05) gsap.to(b.base, {x:b.home.x, y:b.home.y, duration:.9, ease:'power3.inOut'});
       else { b.base.x = b.home.x; b.base.y = b.home.y; }
     }
@@ -797,7 +840,19 @@ function layout(animate){
       } else { c.base.x = x; c.base.y = y; if (animate || c.shown) c.vis = 1; }
       c.shown = true;
     });
-    if (show) xLeft += Math.ceil(inBin.length / rows) * step - L.gap + binGap;
+    // expand / collapse tile in the next slot
+    const m = b.more, k = inBin.length, hasTile = more !== 0;
+    if (hasTile){
+      const x = xLeft + L.cardW / 2 + Math.floor(k / rows) * step;
+      const y = blockTop - BIN_LABEL_H - L.cardH / 2 - (k % rows) * (L.cardH + L.gap);
+      lastX = Math.max(lastX, x);
+      m.el.style.width = L.cardW + 'px'; m.el.style.height = L.cardH + 'px';
+      m.el.innerHTML = more > 0 ? `<b>+${more}</b><span>clip</span><small>Xem thêm</small>` : `<b>↑</b><small>Thu gọn</small>`;
+      if (animate && !reduce && m.vis > .05) gsap.to(m.base, {x, y, duration:.9, ease:'power3.inOut'});
+      else { m.base.x = x; m.base.y = y; }
+    }
+    if (animate && !reduce) gsap.to(m, {vis:hasTile ? 1 : 0, duration:.4}); else m.vis = hasTile ? 1 : 0;
+    if (show) xLeft += Math.ceil((inBin.length + (hasTile ? 1 : 0)) / rows) * step - L.gap + binGap;
   });
   gridCards.filter(c => !list.includes(c)).forEach(c => {
     c.shown = false;
@@ -1129,7 +1184,7 @@ canvas.addEventListener('pointerup', () => {
     return;
   }
   if (!drag) return;
-  if (!drag.moved){ if (hovered) activate(hovered); else if (clapState.hovered) clapAction(); }
+  if (!drag.moved){ if (hovered) activate(hovered); else if (moreHovered) toggleBin(moreHovered); else if (clapState.hovered) clapAction(); }
   // flick inertia, capped near one screen so a hard swipe on a phone cannot fly past a whole chapter
   else if (!reduce) target = clamp(target - clamp(drag.v * 260, -V.w * .8, V.w * .8), 0, maxScroll);
   drag = null;
@@ -1204,7 +1259,7 @@ function activate(c){
 const ray = new THREE.Raycaster();
 function updateHover(){
   if (cardDrag){ setHovered(cardDrag.card); return; }
-  if (viewing || scrub || (drag && drag.moved)){ setHovered(null); return; }
+  if (viewing || scrub || (drag && drag.moved)){ setHovered(null); moreHovered = null; return; }
   ray.setFromCamera(pointer.ndc, camera);
   const meshes = allCards.filter(c => c.group.visible && c.vis > .5).map(c => c.front);
   // depth testing is off, so the card you see on top is the one drawn last, not the nearest hit
@@ -1213,8 +1268,15 @@ function updateHover(){
   const c = hit ? hit.object.userData.card : null;
   if (c && hit.uv){ c.tilt.tx = (hit.uv.x - .5) * 2; c.tilt.ty = (hit.uv.y - .5) * 2; }
   setHovered(c);
+  // a bin's "Xem thêm" tile is HTML, so it is hit-tested by its screen rect
+  const mh = c ? null : moreUnderPointer();
+  if (mh !== moreHovered){
+    moreHovered = mh;
+    cursorEl.classList.toggle('on-card', !!mh || !!hovered);
+    if (mh){ cursorLabel.textContent = 'OPEN'; cursorTitle.innerHTML = expandedBins.has(mh.cat) ? 'Thu gọn' : `${mh.info.label}<small>xem hết</small>`; }
+  }
   // the clapperboard is not a card; check it only when no card is under the pointer
-  const onClap = !c && ray.intersectObjects(clapMeshes, false).length > 0;
+  const onClap = !c && !mh && ray.intersectObjects(clapMeshes, false).length > 0;
   if (onClap !== clapState.hovered){
     clapState.hovered = onClap;
     cursorEl.classList.toggle('on-card', onClap || !!hovered);
