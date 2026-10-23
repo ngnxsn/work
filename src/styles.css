@@ -109,8 +109,12 @@ body:not(.fine) .on-fine{display:none}
 body:not(.fine) .on-touch{display:inline}
 .tags{display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 24px}
 .tags span{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;padding:6px 10px;border-radius:6px;border:1px solid var(--line-2);color:var(--muted)}
+.sw-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:0 0 18px;max-width:420px}
+.sw{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:10px;color:var(--subtle);text-align:center}
+.sw b{display:grid;place-items:center;width:38px;height:38px;border-radius:9px;font-family:var(--font-mono);font-size:13px;font-weight:700;
+  color:var(--c);background:color-mix(in srgb,var(--c) 12%,var(--panel));border:1px solid color-mix(in srgb,var(--c) 35%,transparent)}
 .mini-title{font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--subtle);margin:22px 0 10px}
-@media (max-width:719px){.chead h2{font-size:40px}}
+@media (max-width:719px){.sw b{width:32px;height:32px;font-size:11px}.chead h2{font-size:40px}}
 .link-arrow{align-self:flex-start;font-size:14px;font-weight:500;padding:12px 18px;border-radius:999px;border:1px solid var(--line-2);transition:all .2s}
 .link-arrow:hover{border-color:var(--brand);color:var(--brand)}
 
@@ -122,7 +126,7 @@ body:not(.fine) .on-touch{display:inline}
 .end-links .primary:hover{background:var(--brand-2);color:var(--ink)}
 
 /* ============= TIMELINE ============= */
-.timeline{position:fixed;left:0;right:0;bottom:0;height:var(--tl);z-index:20;display:flex;
+.timeline{position:fixed;left:0;right:0;bottom:0;height:var(--tl);z-index:20;display:flex;user-select:none;-webkit-user-select:none; /* dragging the playhead must not select ruler text */
   background:rgba(23,20,17,.92);backdrop-filter:blur(10px);border-top:1px solid var(--line-2)}
 .tl-labels{width:64px;flex:none;display:flex;flex-direction:column;border-right:1px solid var(--line)}
 .tl-labels span{flex:1;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;
@@ -393,6 +397,7 @@ html.no-webgl body > :not(.fallback){display:none !important} /* beats #gl and t
 /* the AI header carries two tool lists: tighten it, and drop the skills line on short screens */
 #ahead h2{margin:14px 0 14px}
 #ahead .mini-title{margin:16px 0 8px}
-@media (max-height:820px){ #ahead .small{display:none} }
+#ahead .sw-grid{margin-bottom:6px}
+@media (max-height:820px){ #ahead .small{display:none} #ahead .sw b{width:32px;height:32px;font-size:11px} }
 /* keyboard focus: one visible ring for every control (mouse clicks do not show it) */
 a:focus-visible,button:focus-visible,.chip:focus-visible{outline:2px solid var(--brand);outline-offset:3px}

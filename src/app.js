@@ -974,8 +974,7 @@ function buildTimeline(){
     const a = fracOf(s - halfW), b = fracOf(s + halfW);
     el.style.left = `calc(${pct(a)} + .5px)`; el.style.width = `max(2px, calc(${pct(b - a)} - 1px))`;
     el.title = title;
-    el.addEventListener('pointerdown', ev => ev.stopPropagation());
-    el.addEventListener('click', ev => { ev.stopPropagation(); onClick(); });
+    el.go = onClick; // called by the timeline's pointerup when the press did not drag
     tlV1.appendChild(el);
     return el;
   };
@@ -1017,21 +1016,33 @@ function drawWave(){
 // scrubbing
 let scrub = null;
 function fracFromEvent(e){ const r = tlBody.getBoundingClientRect(); return clamp((e.clientX - r.left) / r.width, 0, 1); }
+// Press anywhere on the timeline and drag to scrub, clips included. A press on a chapter or V1 clip
+// that does not move is a click (jump to it); before, those rows ate the press and dragging did nothing.
 tlBody.addEventListener('pointerdown', e => {
   if (viewing) return;
+  e.preventDefault(); // no text selection on the ruler and clip labels while dragging
   const ghost = e.target.closest('[data-ghost]');
   if (ghost){ toast(`Chương ${ghost.dataset.ghost} đang dựng ở bản tiếp theo`); return; }
-  const jump = e.target.closest('[data-jump]');
-  if (jump){ target = +jump.dataset.jump; return; }
-  scrub = {id:e.pointerId};
+  const clip = e.target.closest('[data-jump]') || e.target.closest('.clip.v');
+  scrub = {id:e.pointerId, x:e.clientX, clip, moved:false};
   tlBody.setPointerCapture(e.pointerId);
+  if (clip) return; // wait: a click jumps to the clip, a drag scrubs
   const f = fracFromEvent(e);
   if (f > BUILT) toast('Phần này đang dựng ở bản tiếp theo');
   target = scrollOfFrac(f);
 });
-tlBody.addEventListener('pointermove', e => { if (scrub) target = scrollOfFrac(fracFromEvent(e)); });
+tlBody.addEventListener('pointermove', e => {
+  if (!scrub) return;
+  if (!scrub.moved && Math.abs(e.clientX - scrub.x) < 4) return;
+  scrub.moved = true;
+  target = scrollOfFrac(fracFromEvent(e));
+});
 const endScrub = () => { scrub = null; };
-tlBody.addEventListener('pointerup', endScrub);
+tlBody.addEventListener('pointerup', () => {
+  const c = scrub && !scrub.moved && scrub.clip;
+  if (c) c.dataset.jump !== undefined ? target = +c.dataset.jump : c.go();
+  endScrub();
+});
 tlBody.addEventListener('pointercancel', endScrub);
 
 /* ============= FILTERS ============= */
@@ -1218,10 +1229,10 @@ function setHovered(c){
     const opens = c.kind === 'note' && c.data.url;
     cursorLabel.textContent = opens ? 'OPEN' : CURSOR_LABEL[c.kind];
     const hint = c.kind === 'print' ? 'kéo · bấm mở Behance ↗'
-      : c.kind === 'node' ? 'kéo để sắp lại'
+      : c.kind === 'node' ? '' // the node's name is enough; the DRAG cursor already says it moves
       : c.kind === 'clip' ? c.data.when
       : c.label;
-    cursorTitle.innerHTML = `${c.title}<small>${hint}</small>`;
+    cursorTitle.innerHTML = hint ? `${c.title}<small>${hint}</small>` : c.title;
   }
 }
 
@@ -1460,7 +1471,7 @@ function frame(){
   const t = clock.getElapsedTime();
   const prev = scroll;
   if (!viewing){
-    const k = reduce ? .35 : (scrub ? .22 : .1);
+    const k = reduce ? .35 : (scrub ? .4 : .1); // scrubbing follows the hand closely
     scroll = lerp(scroll, target, k);
     if (Math.abs(target - scroll) < .05) scroll = target;
   }
@@ -1506,7 +1517,7 @@ function onResize(){ if (!hasSize()) return; measureViewport(); layout(false); b
 let rT; addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(onResize, 120); });
 if (window.visualViewport) visualViewport.addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(onResize, 120); }); // iOS bars
 buildFilters();
-$('#video-count').textContent = $('#stat-clips').textContent = VIDEOS.length; // follows videos.json, nothing to update by hand
+$('#video-count').textContent = VIDEOS.length; // follows videos.json, nothing to update by hand
 function start(){
   if (!hasSize()) return requestAnimationFrame(start);
   measureViewport();
