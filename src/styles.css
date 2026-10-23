@@ -60,12 +60,14 @@ body.fine #gl{cursor:none}
 .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
   display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:#6FBF8E;box-shadow:0 0 0 4px rgba(111,191,142,.15)}
-.scn{color:var(--brand);border:1px solid rgba(217,119,87,.4);padding:3px 8px;border-radius:6px}
+.scn{color:var(--acc,var(--brand));border:1px solid color-mix(in srgb,var(--acc,var(--brand)) 40%,transparent);padding:3px 8px;border-radius:6px}
+/* each chapter takes its track colour from the timeline (V2 video, V1 design, FX AI); orange stays for intro, contact and the end */
+#vhead{--acc:#5FB3D9}#ahead{--acc:#9B8CFF}#chead{--acc:#6FBF8E}
 
 /* Intro */
 .intro{padding-left:6vw}
 .intro-copy{max-width:min(620px,42vw)}
-.intro h1{font-family:var(--font-display);font-weight:800;font-size:clamp(64px,10.5vw,168px);line-height:.86;
+.intro h1{font-family:var(--font-display);font-weight:800;font-size:clamp(64px,10.5vw,168px);line-height:.9;
   letter-spacing:-.045em;margin:22px 0 26px}
 .intro h1 span{display:block}
 .intro h1 em{font-style:normal;color:var(--brand)}
@@ -88,9 +90,9 @@ body.fine #gl{cursor:none}
 .deck-caption b{color:var(--brand);font-weight:500}
 
 /* Chapter headers */
-.chead h2,.vend h2{font-family:var(--font-display);font-weight:800;font-size:clamp(44px,5.2vw,84px);line-height:.92;
+.chead h2,.vend h2{font-family:var(--font-display);font-weight:800;font-size:clamp(44px,5.2vw,84px);line-height:.98;
   letter-spacing:-.04em;margin:20px 0 22px}
-.chead h2 em,.vend h2 em{font-style:normal;color:var(--brand)}
+.chead h2 em,.vend h2 em{font-style:normal;color:var(--acc,var(--brand))}
 .filters{display:flex;flex-wrap:wrap;gap:8px;margin:28px 0 22px}
 .chip{display:inline-flex;align-items:center;gap:8px;font-size:13px;padding:8px 13px;border-radius:999px;
   border:1px solid var(--line-2);color:var(--muted);transition:all .2s}
@@ -107,12 +109,8 @@ body:not(.fine) .on-fine{display:none}
 body:not(.fine) .on-touch{display:inline}
 .tags{display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 24px}
 .tags span{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;padding:6px 10px;border-radius:6px;border:1px solid var(--line-2);color:var(--muted)}
-.sw-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:0 0 18px;max-width:420px}
-.sw{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:10px;color:var(--subtle);text-align:center}
-.sw b{display:grid;place-items:center;width:38px;height:38px;border-radius:9px;font-family:var(--font-mono);font-size:13px;font-weight:700;
-  color:var(--c);background:color-mix(in srgb,var(--c) 12%,var(--panel));border:1px solid color-mix(in srgb,var(--c) 35%,transparent)}
 .mini-title{font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--subtle);margin:22px 0 10px}
-@media (max-width:719px){.sw b{width:32px;height:32px;font-size:11px}.chead h2{font-size:40px}}
+@media (max-width:719px){.chead h2{font-size:40px}}
 .link-arrow{align-self:flex-start;font-size:14px;font-weight:500;padding:12px 18px;border-radius:999px;border:1px solid var(--line-2);transition:all .2s}
 .link-arrow:hover{border-color:var(--brand);color:var(--brand)}
 
@@ -211,7 +209,7 @@ body.fine .cursor{display:block}
 .boot .tc{font-size:44px}
 .boot p{font-family:var(--font-mono);font-size:11px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
 .boot-bar{width:220px;height:2px;background:var(--line-2);overflow:hidden}
-.boot-bar i{display:block;height:100%;width:0;background:var(--brand);transition:width .3s}
+.boot-bar i{display:block;height:100%;width:0;background:var(--brand)} /* no transition: texture uploads block the main thread right after, which froze it half way */
 /* Contact card */
 .contact-card{width:100%;padding:22px;border-radius:16px;background:var(--panel);border:1px solid var(--line-2);box-shadow:0 30px 80px rgba(0,0,0,.45);pointer-events:auto}
 .ex-head{display:flex;justify-content:space-between;align-items:center;font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--muted);
@@ -312,7 +310,7 @@ html.no-webgl body > :not(.fallback){display:none !important} /* beats #gl and t
 .vbar{position:absolute;left:0;right:0;bottom:0;height:var(--bar,32px);display:flex;align-items:center;gap:8px;padding:0 9px;box-sizing:border-box;
   background:rgba(17,15,12,.86);border-top:2px solid var(--c)}
 .vbar b{flex:1;min-width:0;font-family:var(--font-sans);font-size:clamp(11px,calc(var(--bar,32px) * .36),15px);font-weight:600;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.vbar span{font-family:var(--font-mono);font-size:10px;color:rgba(239,231,214,.45)}
+.vdate{position:absolute;top:6px;right:6px;padding:2px 5px;border-radius:3px;background:rgba(17,15,12,.78);font-family:var(--font-mono);font-size:10px;line-height:1.3;color:rgba(239,231,214,.85)} /* month/year, like a bin date */
 .print3d{position:relative;box-sizing:content-box;padding:var(--paper,10px);background:#F4EFE6;border-radius:3px;backface-visibility:hidden}
 .print3d img{display:block;width:100%;height:100%;object-fit:cover}
 .print3d::before,.note3d::before{content:"";position:absolute;left:50%;top:-8px;width:26%;min-width:60px;height:18px;transform:translateX(-50%) rotate(var(--tape,0deg));
@@ -395,5 +393,6 @@ html.no-webgl body > :not(.fallback){display:none !important} /* beats #gl and t
 /* the AI header carries two tool lists: tighten it, and drop the skills line on short screens */
 #ahead h2{margin:14px 0 14px}
 #ahead .mini-title{margin:16px 0 8px}
-#ahead .sw-grid{margin-bottom:6px}
-@media (max-height:820px){ #ahead .small{display:none} #ahead .sw b{width:32px;height:32px;font-size:11px} }
+@media (max-height:820px){ #ahead .small{display:none} }
+/* keyboard focus: one visible ring for every control (mouse clicks do not show it) */
+a:focus-visible,button:focus-visible,.chip:focus-visible{outline:2px solid var(--brand);outline-offset:3px}

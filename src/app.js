@@ -494,8 +494,9 @@ class Card {
     el.append(img);
     this.loadImg(img, [o.thumb, o.thumb, o.thumbFallback].filter(Boolean)); // object-fit crops the uncropped fallback
     if (this.deckSlot < 0){ // name bar along the bottom edge of reel cards
-      const month = (d.id.match(/^\d{1,2}\.(\d{1,2})[-_]/) || [])[1]; // ids start with day.month; "13/10" read like a fraction, "T10" reads as a month
-      el.insertAdjacentHTML('beforeend', `<div class="vbar"><b>${this.title}</b>${month ? `<span>T${month}</span>` : ''}</div>`);
+      // date: month/year set in videos.json ("T10/26"); ids only carry day.month, the year came from upload dates
+      // it sits as a badge on the thumbnail so the name bar keeps its width for the title
+      el.insertAdjacentHTML('beforeend', `${d.date ? `<span class="vdate">${d.date}</span>` : ''}<div class="vbar"><b>${this.title}</b></div>`);
     }
     return el;
   }
@@ -543,7 +544,7 @@ class Card {
     const el = document.createElement('div');
     el.className = 'clip3d';
     el.style.setProperty('--c', d.color);
-    el.innerHTML = `<small>${d.tag.toUpperCase()}${d.to ? '' : '<em>● ĐANG CHẠY</em>'}</small><b>${d.title}</b><span>${d.when}</span>`;
+    el.innerHTML = `<small>${d.tag.toUpperCase()}${d.to ? '' : '<em>● ĐANG CHẠY</em>'}</small><b>${d.short || d.title}</b><span>${d.when}</span>`; // short: the clip is narrower than the monitor
     return el;
   }
   // Node face as HTML, NODE_TEX_W px wide (ports overhang a 12px inset on each side).
@@ -949,6 +950,9 @@ function buildTimeline(){
     const from = fracOf(ch.start), to = i < chapters.length - 1 ? fracOf(chapters[i + 1].start) : BUILT;
     const el = document.createElement('div');
     el.className = 'clip scn-clip'; el.textContent = ch.name;
+    // phones: a name that would be cut ("02 Des") shows just its number
+    if (V.mobile && (to - from) * tlBody.clientWidth < ch.name.length * 6 + 10) el.textContent = ch.name.slice(0, 2);
+    el.title = ch.name;
     el.style.left = `calc(${pct(from)} + 1px)`; el.style.width = `calc(${pct(to - from)} - 2px)`;
     el.dataset.jump = clamp(ch.jump, 0, maxScroll);
     tlScn.appendChild(el);
@@ -1413,6 +1417,7 @@ function updateHud(){
   playhead.style.left = (f * 100) + '%';
   tlProgress.style.width = (f * 100) + '%';
   playheadTc.textContent = tc.slice(3, 11);
+  playheadTc.style.transform = `translateX(${(-f * 100).toFixed(1)}%)`; // slides from right of the line to left of it, so neither end is clipped
   let cur = 0;
   chapters.forEach((ch, i) => { if (scroll >= ch.start) cur = i; });
   if (cur !== lastScene){
@@ -1431,9 +1436,11 @@ bootTotal = deckCards.length + gridCards.length + printCards.length;
 
 function bootTick(){
   loaded++;
-  $('#boot-bar').style.width = Math.min(100, loaded / bootTotal * 100) + '%';
-  $('#boot-txt').textContent = `Đang nạp footage · ${Math.min(loaded, bootTotal)}/${bootTotal}`;
-  if (loaded >= deckCards.length + 12) finishBoot();
+  // the suite opens once the deck and the first grid cards are in; count toward that, not every image
+  const need = Math.min(bootTotal, deckCards.length + 12);
+  $('#boot-bar').style.width = Math.min(100, loaded / need * 100) + '%';
+  $('#boot-txt').textContent = `Đang nạp footage · ${Math.min(loaded, need)}/${need}`;
+  if (loaded >= need) finishBoot();
 }
 function finishBoot(){
   if (booted) return; booted = true;
@@ -1499,7 +1506,7 @@ function onResize(){ if (!hasSize()) return; measureViewport(); layout(false); b
 let rT; addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(onResize, 120); });
 if (window.visualViewport) visualViewport.addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(onResize, 120); }); // iOS bars
 buildFilters();
-$('#video-count').textContent = VIDEOS.length; // follows videos.json, nothing to update by hand
+$('#video-count').textContent = $('#stat-clips').textContent = VIDEOS.length; // follows videos.json, nothing to update by hand
 function start(){
   if (!hasSize()) return requestAnimationFrame(start);
   measureViewport();
