@@ -790,7 +790,7 @@ function layout(animate){
   const deckH = deckCardH(V.avail, V.w, m);
   L.deckX = m ? V.w * .5 : V.w * .73;
   // mobile: deck sits on the bottom edge of the content area, under the copy
-  L.deckH = deckH;
+  L.deckH = L.deckBase = deckH; // mobile: placeDeck may grow it into the space the copy leaves
   L.deckY = m ? V.h / 2 - (V.h - V.tl - deckH / 2 - 28) : V.y0 + 10;
   deckCards.forEach(c => c.setSize(deckH));
   elCaption.style.left = L.deckX + 'px';
@@ -959,8 +959,14 @@ function placeDeck(){
   const bottom = Math.min(V.h - V.tl, $('#timeline') ? $('#timeline').getBoundingClientRect().top : Infinity);
   // the fanned deck reaches past its card height (outer cards sit lower and tilt), so centre the
   // whole block (fan + caption under it) in the gap, and keep the caption below the lowest corner
-  const up = deckUp(L.deckH), down = deckDown(L.deckH), capH = 22;
-  const cy = Math.min((top + bottom - (up + down + capH)) / 2 + up, bottom - 12 - capH - down);
+  // grow the deck into whatever the copy leaves (the base size is what fitScenes reserved), up to
+  // where the fan would get too wide for the screen; then sit fan + caption just above the timeline
+  const capH = 22;
+  const free = bottom - top - 12 - 12 - capH - 8; // margins above the fan and below the caption, caption gap
+  const h = clamp((free - 32) / 1.09 * .9, L.deckBase, Math.min(240, V.w * .5)); // inverse of deckUp + deckDown, 90% so the fan has air above it
+  if (Math.abs(h - L.deckH) > 1){ L.deckH = h; deckCards.forEach(c => c.setSize(h)); }
+  const down = deckDown(L.deckH);
+  const cy = bottom - 12 - capH - 8 - down; // caption bottom lands 12px above the timeline
   L.deckY = V.h / 2 - cy;
   elCaption.style.zoom = '';
   elCaption.style.top = (cy + down + 8 - V.hud) + 'px';
