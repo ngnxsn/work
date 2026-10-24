@@ -644,7 +644,12 @@ const BIN_LABEL_H = 30, BIN_LABEL_W = 260;
 // shared by layout() and the thumbnail request (which happens before the first layout)
 const gridRows = avail => avail > 560 ? 3 : 2;
 const gridCardH = (avail, mobile) => Math.min((avail - 70 - BIN_LABEL_H - (mobile ? 12 : 18) * (gridRows(avail) - 1)) / gridRows(avail), 230);
-const deckCardH = (avail, w, mobile) => mobile ? Math.min(avail * .3, 220) : Math.min(avail * .74, 520, w * .28);
+const deckCardH = (avail, w, mobile) => mobile ? Math.min(avail * (avail < 560 ? .26 : .3), 220) : // short phones: a smaller deck leaves the copy its size
+   Math.min(avail * .74, 520, w * .28);
+// How far the fanned deck reaches above / below its centre, in px for card height h. The middle card
+// sits nearer the camera (~4% bigger); the outer ones drop 28px, tilt 0.14 rad and bob 6px (see pose()).
+const deckUp = h => h * .53 + 8;
+const deckDown = h => h * .56 + 24;
 // Thumbnails are requested at the size they will be drawn at (in screen pixels), so they stay crisp
 // without mipmaps. Viewport is not measured yet here, so read it directly.
 // a few fixed sizes, so visitors share thumbnails Cloudinary has already generated
@@ -792,7 +797,7 @@ function layout(animate){
   elCaption.style.top = (V.h / 2 - L.deckY + deckH / 2 + 34 - V.hud) + 'px';
   // on mobile placeDeck moves it under the deck; it is the only swipe cue there (the intro hint is hidden)
   // mobile: the copy ends above the deck (fitScenes shrinks it if it does not fit)
-  if (m){ elIntro.style.justifyContent = 'flex-start'; elIntro.style.paddingTop = '24px'; elIntro.style.paddingBottom = (deckH + 28 + 28) + 'px'; }
+  if (m){ elIntro.style.justifyContent = 'flex-start'; elIntro.style.paddingTop = '24px'; elIntro.style.paddingBottom = (deckUp(deckH) + deckDown(deckH) + 22 + 16) + 'px'; } // fan + caption + margins
   else { elIntro.style.justifyContent = ''; elIntro.style.paddingTop = ''; elIntro.style.paddingBottom = ''; }
 
   // video chapter header
@@ -952,10 +957,13 @@ function placeDeck(){
   if (!mark){ mark = document.createElement('div'); mark.id = 'intro-end'; mark.style.cssText = 'height:0;flex:none'; elIntro.querySelector('.intro-copy').after(mark); }
   const top = mark.getBoundingClientRect().top;
   const bottom = Math.min(V.h - V.tl, $('#timeline') ? $('#timeline').getBoundingClientRect().top : Infinity);
-  const cy = Math.min((top + bottom) / 2, bottom - L.deckH / 2 - 28);
+  // the fanned deck reaches past its card height (outer cards sit lower and tilt), so centre the
+  // whole block (fan + caption under it) in the gap, and keep the caption below the lowest corner
+  const up = deckUp(L.deckH), down = deckDown(L.deckH), capH = 22;
+  const cy = Math.min((top + bottom - (up + down + capH)) / 2 + up, bottom - 12 - capH - down);
   L.deckY = V.h / 2 - cy;
   elCaption.style.zoom = '';
-  elCaption.style.top = (Math.min(cy + L.deckH / 2 + 14, bottom - 16) - V.hud) + 'px';
+  elCaption.style.top = (cy + down + 8 - V.hud) + 'px';
   if (DEBUG) showDebug({inner:innerHeight, gl:canvas.clientHeight, vv:window.visualViewport && Math.round(visualViewport.height), copy:Math.round(top), zoom:elIntro.querySelector('.intro-copy').style.zoom || 1, tl:Math.round(bottom), deckH:Math.round(L.deckH), cy:Math.round(cy)});
 }
 // ?debug prints the layout numbers on screen, for checking phones we cannot attach to
