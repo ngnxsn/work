@@ -8,9 +8,11 @@
   --fg:#EFE7D6;
   --muted:#9E9480;
   --subtle:#8A8170; /* 5:1 on --ink, 4.8:1 on --panel: it carries 9–11px labels */
-  --brand:#D97757;
-  --brand-2:#E3814A;
-  /* text on --brand fills is --ink (6.2:1); white on it is only 3.1:1 */
+  /* mono: emphasis is cream on black, by brightness; red is kept for REC and the playhead only */
+  --brand:#EFE7D6;
+  --brand-2:#FFFFFF;
+  --rec:#E5484D;
+  --em:#D97757; /* the one emphasis colour in headlines (6.2:1 on --ink) */
   --hud:64px;
   --tl:132px;
   --font-display:"Bricolage Grotesque","Be Vietnam Pro",system-ui,sans-serif;
@@ -40,8 +42,8 @@ body.fine #gl{cursor:none}
   justify-content:space-between;padding:0 24px;border-bottom:1px solid var(--line);
   background:linear-gradient(var(--ink),rgba(15,13,11,.6));backdrop-filter:blur(8px)}
 .hud-l,.hud-r{display:flex;align-items:center;gap:14px}
-.rec{display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:11px;color:var(--brand);letter-spacing:.12em}
-.rec i{width:8px;height:8px;border-radius:50%;background:var(--brand);animation:blink 1.2s steps(2) infinite}
+.rec{display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:11px;color:var(--rec);letter-spacing:.12em}
+.rec i{width:8px;height:8px;border-radius:50%;background:var(--rec);animation:blink 1.2s steps(2) infinite}
 @keyframes blink{50%{opacity:.15}}
 .hud-title{font-size:13px;color:var(--muted)}
 .hud-title b{color:var(--fg);font-weight:600}
@@ -50,7 +52,7 @@ body.fine #gl{cursor:none}
 .hud-c b{color:var(--fg);font-weight:500}
 .tc{font-family:var(--font-mono);font-size:15px;font-variant-numeric:tabular-nums;color:var(--fg)}
 .btn-contact{font-size:13px;font-weight:600;padding:9px 16px;border-radius:999px;background:var(--fg);color:var(--ink);transition:background .2s}
-.btn-contact:hover{background:var(--brand);color:var(--ink)}
+.btn-contact:hover{background:var(--brand-2);color:var(--ink)}
 @media (max-width:719px){.hud{padding:0 14px}.hud-title,.hud-c{display:none}.tc{font-size:13px}.btn-contact{padding:8px 12px;font-size:12px}}
 
 /* ============= TRACK (DOM in world space) ============= */
@@ -59,10 +61,8 @@ body.fine #gl{cursor:none}
 .scene a,.scene button{pointer-events:auto}
 .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
   display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.eyebrow .dot{width:7px;height:7px;border-radius:50%;background:#6FBF8E;box-shadow:0 0 0 4px rgba(111,191,142,.15)}
-.scn{color:var(--acc,var(--brand));border:1px solid color-mix(in srgb,var(--acc,var(--brand)) 40%,transparent);padding:3px 8px;border-radius:6px}
-/* each chapter takes its track colour from the timeline (V2 video, V1 design, FX AI); orange stays for intro, contact and the end */
-#vhead{--acc:#5FB3D9}#ahead{--acc:#9B8CFF}#chead{--acc:#6FBF8E}
+.eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--fg);box-shadow:0 0 0 4px rgba(239,231,214,.12)}
+.scn{color:var(--fg);border:1px solid var(--line-2);padding:3px 8px;border-radius:6px}
 
 /* Intro */
 .intro{padding-left:6vw}
@@ -70,7 +70,7 @@ body.fine #gl{cursor:none}
 .intro h1{font-family:var(--font-display);font-weight:800;font-size:clamp(64px,10.5vw,168px);line-height:.9;
   letter-spacing:-.045em;margin:22px 0 26px}
 .intro h1 span{display:block}
-.intro h1 em{font-style:normal;color:var(--brand)}
+.intro h1 em{font-style:normal;color:var(--em)}
 .roles{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
 .role{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;padding:6px 12px 6px 6px;border-radius:8px;
   background:color-mix(in srgb,var(--c) 14%,transparent);border:1px solid color-mix(in srgb,var(--c) 40%,transparent)}
@@ -82,17 +82,17 @@ body.fine #gl{cursor:none}
 .stats dd{font-family:var(--font-display);font-size:30px;font-weight:600;letter-spacing:-.02em}
 .hint{align-self:flex-start;display:inline-flex;align-items:center;gap:12px;font-family:var(--font-mono);font-size:12px;
   letter-spacing:.1em;text-transform:uppercase;color:var(--fg);padding:12px 18px;border:1px solid var(--line-2);border-radius:999px;transition:border-color .2s,background .2s}
-.hint:hover{border-color:var(--brand);background:rgba(217,119,87,.1)}
+.hint:hover{border-color:var(--brand);background:rgba(239,231,214,.06)}
 .hint span{display:inline-block;animation:nudge 1.4s ease-in-out infinite;color:var(--brand)}
 @keyframes nudge{50%{transform:translateX(6px)}}
 .deck-caption{position:absolute;font-size:11px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;
   transform:translateX(-50%);white-space:nowrap}
-.deck-caption b{color:var(--brand);font-weight:500}
+.deck-caption b{color:var(--rec);font-weight:500}
 
 /* Chapter headers */
 .chead h2,.vend h2{font-family:var(--font-display);font-weight:800;font-size:clamp(44px,5.2vw,84px);line-height:.98;
   letter-spacing:-.04em;margin:20px 0 22px}
-.chead h2 em,.vend h2 em{font-style:normal;color:var(--acc,var(--brand))}
+.chead h2 em,.vend h2 em{font-style:normal;color:var(--em)}
 .filters{display:flex;flex-wrap:wrap;gap:8px;margin:28px 0 22px}
 .chip{display:inline-flex;align-items:center;gap:8px;font-size:13px;padding:8px 13px;border-radius:999px;
   border:1px solid var(--line-2);color:var(--muted);transition:all .2s}
@@ -140,17 +140,17 @@ body:not(.fine) .on-touch{display:inline}
 .clip{position:absolute;top:4px;bottom:4px;border-radius:4px;overflow:hidden;font-size:10px;font-family:var(--font-mono);
   display:flex;align-items:center;padding:0 7px;white-space:nowrap;color:var(--ink);font-weight:500;transition:filter .2s}
 .clip:hover{filter:brightness(1.25)}
-.clip.scn-clip{background:var(--fg)}
-.clip.scn-clip.cur{background:var(--brand);color:var(--ink)}
+.clip.scn-clip{background:rgba(239,231,214,.55)}
+.clip.scn-clip.cur{background:var(--fg);color:var(--ink)}
 .clip.v{background:var(--c);padding:0;opacity:.85}
 .clip.v.cur{opacity:1;box-shadow:0 0 0 2px var(--fg) inset}
 .clip.ghost{color:var(--subtle);border:1px dashed var(--line-2);
   background:repeating-linear-gradient(135deg,rgba(239,231,214,.05) 0 6px,transparent 6px 12px)}
 #tl-wave{position:absolute;inset:0;width:100%;height:100%}
-.tl-progress{position:absolute;left:0;top:22px;bottom:0;background:rgba(217,119,87,.07);pointer-events:none}
+.tl-progress{position:absolute;left:0;top:22px;bottom:0;background:rgba(239,231,214,.04);pointer-events:none}
 .playhead{position:absolute;top:0;bottom:0;width:0;pointer-events:none;z-index:2}
-.playhead::before{content:"";position:absolute;top:0;bottom:0;left:-1px;width:2px;background:var(--brand)}
-.playhead span{position:absolute;top:2px;left:0;transform:translateX(-50%);background:var(--brand);color:var(--ink);
+.playhead::before{content:"";position:absolute;top:0;bottom:0;left:-1px;width:2px;background:var(--rec)}
+.playhead span{position:absolute;top:2px;left:0;transform:translateX(-50%);background:var(--rec);color:var(--ink);
   font-family:var(--font-mono);font-size:9px;padding:2px 5px;border-radius:3px;white-space:nowrap}
 @media (max-width:719px){
   .intro{padding:0 20px}.intro-copy{max-width:none}.intro h1{margin:14px 0 18px}
@@ -227,15 +227,15 @@ body.fine .cursor{display:block}
 .ct-grid>*{padding:11px 12px;border-radius:10px;border:1px solid var(--line);font-size:14px;font-weight:500;pointer-events:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:border-color .2s}
 .ct-grid a:hover,.ct-grid button:hover{border-color:var(--brand)}
 .ct-grid button{text-align:left} /* the phone card copies the number, like the email card */
-.ct-grid .ct-hot{background:rgba(217,119,87,.16);border-color:var(--brand);color:var(--fg)} /* Zalo is the quickest way in */
-.ct-grid .ct-hot small{color:var(--brand)}
+.ct-grid .ct-hot{background:rgba(239,231,214,.08);border-color:var(--line-2);color:var(--fg)} /* Zalo is the quickest way in */
+.ct-grid .ct-hot small{color:var(--muted)}
 .ct-grid .ct-hot:hover{background:var(--brand);color:var(--ink)}
 .ct-grid .ct-hot:hover small{color:rgba(15,13,11,.8)}
 .ct-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 .ct-links a{font-size:14px;font-weight:500;padding:11px 16px;border-radius:999px;border:1px solid var(--line-2);transition:all .2s}
 .ct-links a:hover{border-color:var(--brand);color:var(--brand)}
 .clap-caption{position:absolute;transform:translateX(-50%);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
-.clap-caption b{color:var(--brand);font-weight:500}
+.clap-caption b{color:var(--fg);font-weight:500}
 .flash{position:fixed;inset:0;z-index:15;background:#fff;opacity:0;pointer-events:none}
 @media (max-width:719px){.contact-card{padding:16px}.ct-grid{grid-template-columns:1fr 1fr}}
 /* Career program monitor: lives in the track, JS keeps it centered over the playhead */
@@ -302,11 +302,11 @@ html.no-webgl body > :not(.fallback){display:none !important} /* beats #gl and t
 .career3d{position:relative;backface-visibility:hidden}
 .career3d .cy{position:absolute;top:8px;font-family:var(--font-mono);font-size:15px;font-weight:700;color:rgba(239,231,214,.8)}
 .career3d em{position:absolute;top:calc(var(--ruler) - 18px);font-family:var(--font-mono);font-size:12px;font-weight:700;font-style:normal;white-space:nowrap}
-.career3d .cnow{color:#6FBF8E}
+.career3d .cnow{color:var(--fg)}
 .career3d .clane{position:absolute;left:16px;display:flex;align-items:center;font-family:var(--font-mono);font-size:13px;font-weight:700;color:rgba(239,231,214,.75)}
 .ph3d{position:relative;width:16px}
-.ph3d::before{content:"";position:absolute;left:6.5px;top:0;bottom:0;width:3px;background:var(--brand)}
-.ph3d i{position:absolute;left:1px;top:-7px;width:14px;height:14px;background:var(--brand);transform:rotate(45deg)}
+.ph3d::before{content:"";position:absolute;left:6.5px;top:0;bottom:0;width:3px;background:var(--rec)}
+.ph3d i{position:absolute;left:1px;top:-7px;width:14px;height:14px;background:var(--rec);transform:rotate(45deg)}
 /* reel + deck cards, table prints and notes, bin labels, surface text */
 .vcard3d{position:relative;overflow:hidden;border-radius:7.3%/5.5%;background:#2a251f;backface-visibility:hidden}
 .vcard3d img,.vcard3d video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
@@ -329,9 +329,9 @@ html.no-webgl body > :not(.fallback){display:none !important} /* beats #gl and t
 .bin3d b{font-weight:700;color:var(--fg)}
 .bin3d span{font-size:12px;color:rgba(239,231,214,.45)}
 .surface3d{position:relative}
-.surface3d b{position:absolute;font-family:var(--font-mono);font-size:11px;font-weight:500;color:rgba(217,119,87,.75)}
+.surface3d b{position:absolute;font-family:var(--font-mono);font-size:11px;font-weight:500;color:rgba(239,231,214,.5)}
 .surface3d .st-label{position:absolute;font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;color:rgba(239,231,214,.4);white-space:nowrap}
-.surface3d .st-live{color:rgba(155,140,255,.8)}
+.surface3d .st-live{color:rgba(239,231,214,.75)}
 .note3d::before{top:-18px;height:40px;min-width:110px} /* notes are scaled down ~3x, so their tape is drawn bigger */
 /* viewer frame: starts as the card's own image, then the player loads over it */
 .viewer-frame .vw-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1}
@@ -363,7 +363,7 @@ html.no-webgl body > :not(.fallback){display:none !important} /* beats #gl and t
 .pf-close{width:34px;height:34px;border-radius:50%;border:1px solid var(--line-2);font-size:13px;color:var(--muted);transition:all .2s}
 .pf-close:hover{border-color:var(--brand);color:var(--brand)}
 .pf-body h2{font-family:var(--font-display);font-size:clamp(34px,3.6vw,52px);font-weight:800;letter-spacing:-.035em;line-height:1;margin:16px 0 8px}
-.pf-role{font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;color:var(--brand);margin-bottom:16px}
+.pf-role{font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;color:var(--muted);margin-bottom:16px}
 .pf-lead{font-size:15px;line-height:1.65;color:var(--muted)}
 .pf-lead b{color:var(--fg);font-weight:600}
 .pf-body h3{font-family:var(--font-mono);font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--subtle);
@@ -391,10 +391,10 @@ html.no-webgl body > :not(.fallback){display:none !important} /* beats #gl and t
 }
 .pf-body,.pf-card{scrollbar-width:thin;scrollbar-color:rgba(239,231,214,.25) transparent}
 .career3d .cy.dim{color:rgba(239,231,214,.45)}
-.career3d .cgap{color:rgba(217,119,87,.9);transform:translateX(-100%)}
+.career3d .cgap{color:rgba(239,231,214,.75);transform:translateX(-100%)}
 .ai-stack{display:flex;flex-wrap:wrap;gap:6px;max-width:440px;margin-bottom:16px}
 .ai-stack span{font-size:12px;font-weight:500;line-height:16px;padding:5px 10px;border-radius:999px;color:var(--fg);
-  background:rgba(155,140,255,.1);border:1px solid rgba(155,140,255,.35)}
+  border:1px solid var(--line-2)}
 /* the AI header carries two tool lists: tighten it, and drop the skills line on short screens */
 #ahead h2{margin:14px 0 14px}
 #ahead .mini-title{margin:16px 0 8px}

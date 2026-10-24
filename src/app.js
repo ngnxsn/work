@@ -192,7 +192,7 @@ function buildWires(){
   });
   const pg = new THREE.BufferGeometry();
   pg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(wires.length * PULSES_PER_WIRE * 3), 3));
-  pulses = new THREE.Points(pg, new THREE.PointsMaterial({map:PULSE_TEX, color:0xd97757, size:26, transparent:true, depthTest:false, depthWrite:false, blending:THREE.AdditiveBlending}));
+  pulses = new THREE.Points(pg, new THREE.PointsMaterial({map:PULSE_TEX, color:0xefe7d6, size:26, transparent:true, depthTest:false, depthWrite:false, blending:THREE.AdditiveBlending}));
   pulses.renderOrder = 6; pulses.frustumCulled = false;
   graph.add(pulses);
 }
@@ -243,7 +243,7 @@ function drawMat(TW, TH){
     for (let i = 0, y = 0; y < h; i++, y += cell){
       g.fillStyle = i % 5 ? 'rgba(239,231,214,.045)' : 'rgba(239,231,214,.11)'; g.fillRect(0, y, w, k);
     }
-    g.strokeStyle = 'rgba(217,119,87,.16)'; g.lineWidth = k;
+    g.strokeStyle = 'rgba(239,231,214,.1)'; g.lineWidth = k;
     g.beginPath(); g.moveTo(0, 0); g.lineTo(h, h); g.moveTo(w, 0); g.lineTo(w - h, h); g.stroke();
   });
   // ruler numbers and the mat's label are HTML (see surfaceText) so they stay sharp
@@ -302,7 +302,7 @@ function drawCareerBg(){
     }
     // squeezed gap marker
     const gx = X(GAP_END);
-    g.strokeStyle = 'rgba(217,119,87,.55)'; g.setLineDash([6 * k, 5 * k]); g.lineWidth = 1.5;
+    g.strokeStyle = 'rgba(239,231,214,.4)'; g.setLineDash([6 * k, 5 * k]); g.lineWidth = 1.5;
     g.beginPath(); g.moveTo(gx, C.rulerH * k); g.lineTo(gx, h); g.stroke(); g.setLineDash([]);
     // lanes
     LANES.forEach((l, i) => {
@@ -311,7 +311,7 @@ function drawCareerBg(){
     });
     // "now" marker
     const nx = X(monthIdx(NOW) + 1);
-    g.fillStyle = 'rgba(111,191,142,.9)'; g.fillRect(nx, C.rulerH * k, 2 * k, h);
+    g.fillStyle = 'rgba(239,231,214,.85)'; g.fillRect(nx, C.rulerH * k, 2 * k, h);
     // cross-dissolve marks where one work clip runs straight into the next
     const work = CAREER.filter(d => d.track === 'work');
     for (let i = 1; i < work.length; i++){
@@ -361,7 +361,7 @@ function stripesTex(){
     g.fillStyle = '#EFE7D6'; g.fillRect(0, 0, w, h);
     g.fillStyle = '#14110C';
     for (let x = -h; x < w + h; x += 128){ g.beginPath(); g.moveTo(x, 0); g.lineTo(x + 64, 0); g.lineTo(x + 64 - h, h); g.lineTo(x - h, h); g.closePath(); g.fill(); }
-    g.fillStyle = '#D97757'; g.fillRect(0, h - 10, w, 10);
+    g.fillStyle = '#9E9480'; g.fillRect(0, h - 10, w, 10);
   });
   t.colorSpace = THREE.SRGBColorSpace; return t;
 }
@@ -390,7 +390,7 @@ function buildSlate(){
   const rows = [0, .3, .56, .8, 1].map(f => 24 + f * (SLATE_H - 48));
   const line = (x, y, w, h) => `<i style="left:${x}px;top:${y}px;width:${w}px;height:${h}px"></i>`;
   const cell = (label, value, x, y, size, accent) =>
-    `<div class="sl-cell" style="left:${x}px;top:${y}px"><small>${label}</small><b style="font-size:${size}px${accent ? ';color:#D97757' : ''}">${value}</b></div>`;
+    `<div class="sl-cell" style="left:${x}px;top:${y}px"><small>${label}</small><b style="font-size:${size}px${accent ? ';color:#FFFFFF' : ''}">${value}</b></div>`;
   const W = SLATE_W;
   el.innerHTML = [
     ...rows.map(y => line(24, y - 1.5, W - 48, 3)),
@@ -1077,7 +1077,7 @@ function drawWave(){
     const x = i * 3, f = x / W;
     const a = Math.abs(Math.sin(i * .31) * .5 + Math.sin(i * .073) * .35 + Math.sin(i * 1.7) * .15);
     const h = Math.max(1, a * (H - 8));
-    g.fillStyle = f < BUILT ? 'rgba(217,119,87,.55)' : 'rgba(239,231,214,.08)';
+    g.fillStyle = f < BUILT ? 'rgba(239,231,214,.35)' : 'rgba(239,231,214,.08)';
     g.fillRect(x, (H - h) / 2, 2, h);
   }
 }
