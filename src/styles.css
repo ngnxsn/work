@@ -281,6 +281,9 @@ html.no-webgl body > :not(.fallback){display:none !important} /* beats #gl and t
 .node3d.solid .nd-body{background:var(--c)}
 .node3d.solid li{color:#fff}
 .node3d.solid li::before{background:rgba(255,255,255,.9)}
+.node3d li.kv{padding-left:0} /* label column + value, no bullet */
+.node3d li.kv::before{display:none}
+.node3d li.kv small{display:inline-block;width:138px;font-family:var(--font-mono);font-size:17px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);vertical-align:1px}
 .nd-port{position:absolute;top:50%;width:20px;height:20px;margin-top:-10px;border-radius:50%;background:#14120F;border:3px solid var(--c);box-sizing:border-box}
 .node3d.solid .nd-port{border-color:#fff}
 .nd-port.in{left:2px}.nd-port.out{right:2px}
@@ -332,6 +335,11 @@ html.no-webgl body > :not(.fallback){display:none !important} /* beats #gl and t
 .surface3d b{position:absolute;font-family:var(--font-mono);font-size:11px;font-weight:500;color:rgba(239,231,214,.5)}
 .surface3d .st-label{position:absolute;font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;color:rgba(239,231,214,.4);white-space:nowrap}
 .surface3d .st-live{color:rgba(239,231,214,.75)}
+.surface3d .st-lane{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500;letter-spacing:.12em;color:rgba(239,231,214,.6)} /* wire legend under the workflow graph */
+.surface3d .st-key{display:inline-block;width:22px;height:0;border-top:2px solid rgba(239,231,214,.6);margin-left:14px} /* legend: wire styles */
+.surface3d .st-key:first-child{margin-left:0}
+.surface3d .st-key.st-fx{border-top:2px dashed rgba(155,140,255,.85)}
+.surface3d .st-key.st-loop{width:14px;height:8px;border:2px solid rgba(239,231,214,.6);border-bottom:0;border-radius:8px 8px 0 0}
 .note3d::before{top:-18px;height:40px;min-width:110px} /* notes are scaled down ~3x, so their tape is drawn bigger */
 /* viewer frame: starts as the card's own image, then the player loads over it */
 .viewer-frame .vw-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1}

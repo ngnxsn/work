@@ -2,142 +2,160 @@
   "nodes": [
     {
       "key": "brief",
+      "tag": "STEP 01",
       "title": "Brief",
       "lines": [
-        "Sản phẩm · USP",
-        "Insight khách hàng",
-        "Kênh: TikTok / FB / Web"
+        "Sản phẩm|USP",
+        "Khách hàng|Insight",
+        "Kênh|TikTok / FB / Web"
       ],
       "color": "#EFE7D6",
-      "fx": -0.45,
-      "fy": 0.02
-    },
-    {
-      "key": "idea",
-      "title": "Creative Ideation",
-      "lines": [
-        "Claude · ChatGPT",
-        "Concept · Script",
-        "Moodboard"
-      ],
-      "color": "#9B8CFF",
-      "fx": -0.27,
-      "fy": -0.02
-    },
-    {
-      "key": "image",
-      "title": "AI Image Prompting",
-      "lines": [
-        "Nano Banana Pro",
-        "ChatGPT Images 2.0",
-        "Photoshop retouch"
-      ],
-      "color": "#D97757",
-      "fx": -0.08,
-      "fy": 0.25
-    },
-    {
-      "key": "voice",
-      "title": "Voice & Sound",
-      "lines": [
-        "ElevenLabs",
-        "Audition"
-      ],
-      "color": "#E3B341",
-      "fx": 0.11,
-      "fy": -0.1
-    },
-    {
-      "key": "video",
-      "title": "AI Video Workflow",
-      "lines": [
-        "Sora · Kling AI",
-        "Runway · Wan 3.0",
-        "Seedance 2.5 · Minimax H3",
-        "Google Omni"
-      ],
-      "color": "#5FB3D9",
-      "fx": 0.11,
-      "fy": 0.2
-    },
-    {
-      "key": "code",
-      "title": "Vibe Coding",
-      "lines": [
-        "Claude Code / Design",
-        "Visual Studio",
-        "Landing pages"
-      ],
-      "color": "#E07AA8",
-      "fx": -0.08,
-      "fy": -0.3
-    },
-    {
-      "key": "edit",
-      "title": "Edit & Finish",
-      "lines": [
-        "Premiere · After Effects",
-        "DaVinci · CapCut",
-        "Blender 3D"
-      ],
-      "color": "#6FBF8E",
-      "fx": 0.29,
+      "fx": -0.42,
       "fy": 0.05
     },
     {
-      "key": "out",
-      "title": "Output",
+      "key": "shoot",
+      "tag": "STEP 02A",
+      "title": "Quay",
       "lines": [
-        "Ads creative",
-        "Social content",
-        "Landing page"
+        "Thiết bị|Sony · Canon",
+        "Thể loại|Sản phẩm · Sự kiện",
+        "Setup|Ánh sáng · Bối cảnh"
+      ],
+      "color": "#EFE7D6",
+      "fx": -0.2,
+      "fy": 0.27
+    },
+    {
+      "key": "design",
+      "tag": "STEP 02B",
+      "title": "Thiết kế visual",
+      "lines": [
+        "Ấn phẩm|Key visual · Banner",
+        "|Poster",
+        "Phần mềm|Photoshop · Illustrator"
+      ],
+      "color": "#EFE7D6",
+      "fx": -0.2,
+      "fy": -0.03
+    },
+    {
+      "key": "edit",
+      "tag": "STEP 03",
+      "title": "Dựng",
+      "lines": [
+        "Phần mềm|Premiere · After Effects",
+        "|DaVinci · CapCut",
+        "Agent AI|Claude · Codex"
+      ],
+      "color": "#EFE7D6",
+      "fx": 0.02,
+      "fy": 0.12
+    },
+    {
+      "key": "feedback",
+      "tag": "STEP 04",
+      "title": "Feedback",
+      "lines": [
+        "Gửi bản nháp",
+        "Chỉnh theo góp ý"
+      ],
+      "color": "#EFE7D6",
+      "fx": 0.2,
+      "fy": 0.25
+    },
+    {
+      "key": "out",
+      "tag": "STEP 05",
+      "title": "Final",
+      "lines": [
+        "TVC · Ads creative",
+        "Beauty shot · Motion graphic",
+        "Social content · Landing page"
       ],
       "color": "#D97757",
-      "fx": 0.46,
-      "fy": -0.04,
+      "fx": 0.4,
+      "fy": 0.08,
       "solid": true
+    },
+    {
+      "key": "idea",
+      "tag": "FX · AI",
+      "title": "Ideation",
+      "lines": [
+        "Claude · ChatGPT",
+        "Concept · Script"
+      ],
+      "color": "#9B8CFF",
+      "fx": -0.42,
+      "fy": -0.27,
+      "mini": true
+    },
+    {
+      "key": "image",
+      "tag": "FX · AI",
+      "title": "AI Image",
+      "lines": [
+        "GPT Images · Seedream",
+        "Nano Banana Pro"
+      ],
+      "color": "#9B8CFF",
+      "fx": -0.15,
+      "fy": -0.3,
+      "mini": true
+    },
+    {
+      "key": "video",
+      "tag": "FX · AI",
+      "title": "AI Video",
+      "lines": [
+        "Seedance · Minimax H3",
+        "Kling AI · Google Omni"
+      ],
+      "color": "#9B8CFF",
+      "fx": 0.1,
+      "fy": -0.22,
+      "mini": true
+    },
+    {
+      "key": "voice",
+      "tag": "FX · AI",
+      "title": "Voice",
+      "lines": [
+        "ElevenLabs · Minimax",
+        "Thuê voice talent"
+      ],
+      "color": "#9B8CFF",
+      "fx": 0.25,
+      "fy": -0.3,
+      "mini": true
+    },
+    {
+      "key": "code",
+      "tag": "FX · AI",
+      "title": "Vibe Coding",
+      "lines": [
+        "Claude Code · Codex",
+        "Antigravity"
+      ],
+      "color": "#9B8CFF",
+      "fx": 0.42,
+      "fy": -0.24,
+      "mini": true
     }
   ],
   "edges": [
-    [
-      "brief",
-      "idea"
-    ],
-    [
-      "idea",
-      "image"
-    ],
-    [
-      "idea",
-      "voice"
-    ],
-    [
-      "idea",
-      "code"
-    ],
-    [
-      "image",
-      "video"
-    ],
-    [
-      "image",
-      "code"
-    ],
-    [
-      "video",
-      "edit"
-    ],
-    [
-      "voice",
-      "edit"
-    ],
-    [
-      "edit",
-      "out"
-    ],
-    [
-      "code",
-      "out"
-    ]
+    ["brief", "shoot"],
+    ["brief", "design"],
+    ["shoot", "edit"],
+    ["design", "edit"],
+    ["edit", "feedback"],
+    ["feedback", "out"],
+    ["feedback", "edit", "loop"],
+    ["idea", "brief", "assist"],
+    ["image", "design", "assist"],
+    ["video", "edit", "assist"],
+    ["voice", "edit", "assist"],
+    ["code", "out", "assist"]
   ]
 }

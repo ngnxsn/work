@@ -153,7 +153,8 @@ function drawGraphBg(GW, GH){
     for (let y = cell; y < h; y += cell) for (let x = cell; x < w; x += cell) g.fillRect(x - dot / 2, y - dot / 2, dot, dot);
   });
   setSurfaceText(graphText, GW, GH,
-    '<span class="st-label" style="left:24px;top:16px">NODE VIEW · AI PIPELINE · 2026</span><span class="st-label st-live" style="right:24px;top:16px">● LIVE</span>');
+    '<span class="st-label" style="left:24px;top:16px">NODE VIEW · WORKFLOW · 2026</span><span class="st-label st-live" style="right:24px;top:16px">● LIVE</span>' +
+    '<span class="st-label st-lane" style="left:24px;bottom:16px"><i class="st-key"></i>V1 · QUY TRÌNH CHÍNH<i class="st-key st-fx"></i>FX · AI HỖ TRỢ<i class="st-key st-loop"></i>FEEDBACK</span>');
   tex.colorSpace = THREE.SRGBColorSpace;
   if (graphMat.map) graphMat.map.dispose();
   graphMat.map = tex; graphMat.needsUpdate = true;
@@ -168,27 +169,49 @@ const PULSE_TEX = canvasTex(64, 64, (g, w, h) => {
   r.addColorStop(0, 'rgba(255,255,255,1)'); r.addColorStop(.35, 'rgba(255,255,255,.6)'); r.addColorStop(1, 'rgba(255,255,255,0)');
   g.fillStyle = r; g.fillRect(0, 0, w, h);
 });
+const dashIndex = wireIndex.filter((_, i) => Math.floor(i / 6) % 2 === 0); // every other segment: a dashed wire
 const PULSES_PER_WIRE = 2;
 let wires = [], pulses;
+// Wire kinds: plain (out port -> in port, horizontal tangents, like a compositor), "assist" (an AI node
+// below feeding up into a workflow step: top -> bottom, vertical tangents, dashed) and "loop" (the
+// feedback wire, arcing back over the lane from one node's top to another's).
+const c1 = new THREE.Vector3(), c2 = new THREE.Vector3();
 function bezier(a, b, t, out){
-  // horizontal tangents at both ports, like a compositor
-  const dx = Math.max(60, Math.abs(b.x - a.x) * .5);
-  const u = 1 - t, c1x = a.x + dx, c2x = b.x - dx;
-  out.x = u*u*u*a.x + 3*u*u*t*c1x + 3*u*t*t*c2x + t*t*t*b.x;
-  out.y = u*u*u*a.y + 3*u*u*t*a.y + 3*u*t*t*b.y + t*t*t*b.y;
+  const u = 1 - t;
+  out.x = u*u*u*a.x + 3*u*u*t*c1.x + 3*u*t*t*c2.x + t*t*t*b.x;
+  out.y = u*u*u*a.y + 3*u*u*t*c1.y + 3*u*t*t*c2.y + t*t*t*b.y;
   out.z = lerp(a.z, b.z, t);
   return out;
 }
+function wireEnds(w){ // sets pA, pB and the control points c1, c2 for this frame
+  const ga = w.a.group.position, gb = w.b.group.position;
+  if (w.kind === 'assist'){
+    pA.set(ga.x, ga.y + w.a.h / 2, ga.z); pB.set(gb.x, gb.y - w.b.h / 2, gb.z);
+    const dy = Math.max(40, (pB.y - pA.y) * .5);
+    c1.set(pA.x, pA.y + dy, 0); c2.set(pB.x, pB.y - dy, 0);
+  } else if (w.kind === 'loop'){
+    pA.set(ga.x, ga.y + w.a.h / 2, ga.z); pB.set(gb.x, gb.y + w.b.h / 2, gb.z);
+    const top = graph.userData.H / 2 - 12; // keep the arc on the panel
+    const lift = Math.max(70, Math.abs(pB.x - pA.x) * .45);
+    c1.set(pA.x, Math.min(pA.y + lift, top), 0); c2.set(pB.x, Math.min(pB.y + lift, top), 0);
+  } else {
+    pA.set(ga.x + w.a.w / 2, ga.y, ga.z); pB.set(gb.x - w.b.w / 2, gb.y, gb.z);
+    const dx = Math.max(60, Math.abs(pB.x - pA.x) * .5);
+    c1.set(pA.x + dx, pA.y, 0); c2.set(pB.x - dx, pB.y, 0);
+  }
+}
+const WIRE_COLOR = {assist:0x9b8cff, loop:0xefe7d6};
 function buildWires(){
   const byKey = Object.fromEntries(nodeCards.map(c => [c.data.key, c]));
-  wires = EDGES.map(([from, to], i) => {
+  wires = EDGES.map(([from, to, kind], i) => {
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.BufferAttribute(new Float32Array((WIRE_SEG + 1) * 2 * 3), 3));
-    g.setIndex(wireIndex);
-    const m = new THREE.Mesh(g, mat({color:0xefe7d6, opacity:.35, side:THREE.DoubleSide}));
+    g.setIndex(kind === 'assist' ? dashIndex : wireIndex);
+    const color = WIRE_COLOR[kind] || 0xefe7d6;
+    const m = new THREE.Mesh(g, mat({color, opacity:.35, side:THREE.DoubleSide}));
     m.renderOrder = 5; m.frustumCulled = false;
     graph.add(m);
-    return {a:byKey[from], b:byKey[to], mesh:m, glow:0, phase:i * .37};
+    return {a:byKey[from], b:byKey[to], kind, color, mesh:m, glow:0, phase:i * .37};
   });
   const pg = new THREE.BufferGeometry();
   pg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(wires.length * PULSES_PER_WIRE * 3), 3));
@@ -202,8 +225,7 @@ function updateWires(t){
   const pp = pulses.geometry.attributes.position.array;
   const width = V.mobile ? 2 : 2.6;
   wires.forEach((w, wi) => {
-    const ga = w.a.group.position, gb = w.b.group.position;
-    pA.set(ga.x + w.a.w / 2, ga.y, ga.z); pB.set(gb.x - w.b.w / 2, gb.y, gb.z);
+    wireEnds(w);
     const arr = w.mesh.geometry.attributes.position.array;
     for (let i = 0; i <= WIRE_SEG; i++){
       bezier(pA, pB, i / WIRE_SEG, pt);
@@ -216,8 +238,8 @@ function updateWires(t){
     w.mesh.geometry.attributes.position.needsUpdate = true;
     const lit = focus && (w.a === focus || w.b === focus) ? 1 : 0;
     w.glow = lerp(w.glow, lit, .2);
-    w.mesh.material.opacity = (focus ? .15 + w.glow * .85 : .35) * (1 - dim * .8);
-    w.mesh.material.color.set(lit ? focus.color : 0xefe7d6);
+    w.mesh.material.opacity = (focus ? .15 + w.glow * .85 : w.kind === 'loop' ? .6 : .35) * (1 - dim * .8);
+    w.mesh.material.color.set(lit ? focus.color : w.color);
     for (let k = 0; k < PULSES_PER_WIRE; k++){
       const tt = reduce ? .5 : (t * .22 + w.phase + k / PULSES_PER_WIRE) % 1;
       bezier(pA, pB, tt, pt);
@@ -557,8 +579,11 @@ class Card {
     el.style.setProperty('--c', n.color);
     el.style.setProperty('--on-c', darkText ? '#14110C' : '#fff');
     el.innerHTML = `<div class="nd-body">
-        <header><small>N${String(this.index + 1).padStart(2, '0')}</small><b>${n.title}</b></header>
-        <ul>${n.lines.map(l => `<li>${l}</li>`).join('')}</ul>
+        <header><small>${n.tag || 'N' + String(this.index + 1).padStart(2, '0')}</small><b>${n.title}</b></header>
+        <ul>${n.lines.map(l => { // "Label|value" lines get a label column, so a device is not read as a job type
+          const [k, v] = l.split('|');
+          return v === undefined ? `<li>${l}</li>` : `<li class="kv"><small>${k}</small>${v}</li>`;
+        }).join('')}</ul>
       </div><i class="nd-port in"></i><i class="nd-port out"></i>`;
     return el;
   }
@@ -890,12 +915,12 @@ function layout(animate){
   graph.position.set(L.graphX, V.y0, -40);
   graphMesh.scale.set(L.GW, L.GH, 1);
   graph.userData = {W:L.GW, H:L.GH};
-  drawGraphBg(L.GW, L.GH);
   const nodeW = m ? 230 : clamp(L.GW * .12, 260, 300);
   nodeCards.forEach(c => {
-    c.setSize(nodeW / c.aspect);
+    c.setSize(nodeW * (c.data.mini ? .85 : 1) / c.aspect); // the AI lane's helper nodes sit a size down
     c.base.x = c.frac.fx * L.GW; c.base.y = c.frac.fy * L.GH;
   });
+  drawGraphBg(L.GW, L.GH);
 
   // career chapter: header, then the tilted sequence; the monitor floats above it (see updateCareer)
   L.cheadX = L.graphX + L.GW / 2 + (m ? 80 : 200);
@@ -1010,7 +1035,7 @@ function buildTimeline(){
     {name:'00 Intro', hud:'SCN 00 · <b>INTRO</b>', start:0, jump:0},
     {name:'01 Video & Motion', hud:'SCN 01 · <b>VIDEO &amp; MOTION</b>', start:L.videoStart * .6, jump:L.videoStart},
     {name:'02 Design', hud:'SCN 02 · <b>DESIGN</b>', start:L.dheadX - V.w * .5, jump:L.dheadX - pad},
-    {name:'03 AI', hud:'SCN 03 · <b>AI WORKFLOW</b>', start:L.aheadX - V.w * .5, jump:L.aheadX - pad},
+    {name:'03 Workflow', hud:'SCN 03 · <b>WORKFLOW</b>', start:L.aheadX - V.w * .5, jump:L.aheadX - pad},
     {name:'04 Career', hud:'SCN 04 · <b>CAREER</b>', start:L.cheadX - V.w * .5, jump:L.cheadX - pad},
     {name:'05 Contact', hud:'SCN 05 · <b>CONTACT</b>', start:L.oheadX - V.w * .5, jump:L.oheadX - pad},
   ];
