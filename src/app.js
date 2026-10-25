@@ -1005,11 +1005,11 @@ function layout(animate){
   const ctW = m ? V.w - 40 : 460;
   L.contactX = L.oheadX + headW + (m ? 40 : 70);
   elContact.style.left = L.contactX + 'px'; elContact.style.width = ctW + 'px';
-  const clapS = Math.min(m ? (V.w - 60) / CLAP_W : 1, V.avail * .62 / (CLAP_H + STICK_H * 2), V.w * .34 / CLAP_W);
+  const clapS = Math.min(m ? (V.w - 60) / CLAP_W : 1, V.avail * .62 / (CLAP_H + STICK_H * 2), V.w * (m ? .62 : .34) / CLAP_W); // phones: the slate is the last screen's hero
   L.clapX = L.contactX + ctW + (m ? 40 : 110) + CLAP_W * clapS / 2;
   clap.scale.setScalar(clapS);
-  // phones: the caption and end line stack under the slate, so lift the whole group to sit centred
-  clap.position.set(L.clapX, V.y0 - STICK_H * clapS * .6 + (m ? 42 : 0), 0);
+  // phones: the caption and end line stack under the slate, so lift the whole group
+  clap.position.set(L.clapX, V.y0 - STICK_H * clapS * .6 + (m ? 28 : 0), 0); // optical centre: the open stick on top is light, the slate below is heavy
   elClapCap.style.left = L.clapX + 'px';
   elClapCap.style.width = m ? CLAP_W * clapS + 'px' : ''; // phones: wrap under the slate
   elClapCap.style.top = (V.h / 2 - clap.position.y + CLAP_H * clapS / 2 + 30) + 'px';
@@ -1280,6 +1280,7 @@ canvas.addEventListener('pointerup', () => {
   if (!drag.moved){ if (hovered) activate(hovered); else if (moreHovered) toggleBin(moreHovered); else if (genHovered) generate(); else if (clapState.hovered) clapAction(); }
   // flick inertia, capped near one screen so a hard swipe on a phone cannot fly past a whole chapter
   else if (!reduce) target = clamp(target - clamp(drag.v * 260, -V.w * .8, V.w * .8), 0, maxScroll);
+  if (drag.moved && maxScroll - target < V.w * .3) target = maxScroll; // a swipe that lands near the end settles on it, so the last screen is framed as laid out
   drag = null;
 });
 canvas.addEventListener('pointercancel', () => { drag = null; cardDrag = null; });
