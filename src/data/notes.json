@@ -8,8 +8,8 @@
     ],
     "color": "#EFE7D6",
     "fx": -0.36,
-    "fy": -0.34,
-    "rot": -0.1
+    "fy": -0.3,
+    "rot": -0.15
   },
   {
     "lines": [
@@ -18,9 +18,9 @@
       "/ daily"
     ],
     "color": "#8A8170",
-    "fx": 0.37,
-    "fy": -0.33,
-    "rot": 0.08
+    "fx": 0.36,
+    "fy": -0.22,
+    "rot": 0.1
   },
   {
     "lines": [
@@ -28,9 +28,9 @@
       "trên Behance ↗"
     ],
     "color": "#CFC6B4",
-    "fx": 0.36,
-    "fy": 0.36,
-    "rot": 0.06,
+    "fx": 0.38,
+    "fy": 0.37,
+    "rot": 0.14,
     "url": "https://www.behance.net/ngnxsn"
   }
 ]
