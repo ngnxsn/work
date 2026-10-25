@@ -979,7 +979,7 @@ function layout(animate){
   elCHead.style.left = L.cheadX + 'px'; elCHead.style.width = headW + 'px';
   C.k = m ? 14 : clamp(V.w * .011, 16, 22); // px per month from 2022 on
   C.padL = m ? 92 : 120;
-  C.laneH = m ? 68 : clamp(V.avail * .16, 90, 112);
+  C.laneH = m ? 78 : clamp(V.avail * .16, 90, 112); // phones: tall enough for tag, name and dates
   C.SH = C.rulerH + LANES.length * C.laneH + 16;
   C.SW = C.padL + 24 + scaled(END_M) - scaled(START_M) + 40;
   L.careerX = L.cheadX + headW + (m ? 40 : 80) + C.SW / 2;
@@ -1010,13 +1010,14 @@ function layout(animate){
   clap.scale.setScalar(clapS);
   clap.position.set(L.clapX, V.y0 - STICK_H * clapS * .6, 0);
   elClapCap.style.left = L.clapX + 'px';
+  elClapCap.style.width = m ? CLAP_W * clapS + 'px' : ''; // phones: wrap under the slate
   elClapCap.style.top = (V.h / 2 - clap.position.y + CLAP_H * clapS / 2 + 30) + 'px';
 
   // end line under the clapperboard: the reel ends on the slate (no separate end screen)
   elClapEnd.style.left = L.clapX + 'px';
   elClapEnd.style.width = m ? CLAP_W * clapS + 'px' : ''; // phones: wrap under the slate instead of running off screen
-  elClapEnd.style.top = (V.h / 2 - clap.position.y + CLAP_H * clapS / 2 + 62) + 'px';
-  L.worldEnd = L.clapX + CLAP_W * clapS / 2 + (m ? 20 : 80);
+  elClapEnd.style.top = (V.h / 2 - clap.position.y + CLAP_H * clapS / 2 + (m ? 84 : 62)) + 'px'; // phones: room for a two-line caption
+  L.worldEnd = m ? L.clapX + V.w / 2 : L.clapX + CLAP_W * clapS / 2 + 80; // phones end with the slate centred
   maxScroll = Math.max(0, L.worldEnd - V.w);
   fitScenes(); placeDeck();
   target = clamp(target, 0, maxScroll);

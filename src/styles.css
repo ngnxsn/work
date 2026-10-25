@@ -442,3 +442,4 @@ a:focus-visible,button:focus-visible,.chip:focus-visible{outline:2px solid var(-
   .clip3d small{font-size:9px}.clip3d b{font-size:14px;margin-top:2px}.clip3d span{font-size:9px}
   .career3d .cy{font-size:12px}.career3d .clane{font-size:11px}
 }
+@media (max-width:719px){.clap-caption{white-space:normal;text-align:center;line-height:1.6}}
