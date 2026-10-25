@@ -1008,7 +1008,8 @@ function layout(animate){
   const clapS = Math.min(m ? (V.w - 60) / CLAP_W : 1, V.avail * .62 / (CLAP_H + STICK_H * 2), V.w * .34 / CLAP_W);
   L.clapX = L.contactX + ctW + (m ? 40 : 110) + CLAP_W * clapS / 2;
   clap.scale.setScalar(clapS);
-  clap.position.set(L.clapX, V.y0 - STICK_H * clapS * .6, 0);
+  // phones: the caption and end line stack under the slate, so lift the whole group to sit centred
+  clap.position.set(L.clapX, V.y0 - STICK_H * clapS * .6 + (m ? 42 : 0), 0);
   elClapCap.style.left = L.clapX + 'px';
   elClapCap.style.width = m ? CLAP_W * clapS + 'px' : ''; // phones: wrap under the slate
   elClapCap.style.top = (V.h / 2 - clap.position.y + CLAP_H * clapS / 2 + 30) + 'px';

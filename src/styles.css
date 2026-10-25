@@ -303,7 +303,7 @@ html.no-webgl body > :not(.fallback){display:none !important} /* beats #gl and t
 .clip3d small{display:block;font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--c);white-space:nowrap}
 .clip3d small em{font-style:normal;margin-left:14px}
 .clip3d b{display:block;margin-top:3px;font-family:var(--font-display);font-size:19px;font-weight:800;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.clip3d span{display:block;margin-top:2px;font-family:var(--font-mono);font-size:11px;color:rgba(239,231,214,.6);white-space:nowrap}
+.clip3d span{display:block;margin-top:2px;font-family:var(--font-mono);font-size:11px;color:rgba(239,231,214,.6);white-space:nowrap;position:relative;z-index:1} /* dates sit on top of the filmstrip bars */
 .career3d{position:relative;backface-visibility:hidden}
 .career3d .cy{position:absolute;top:8px;font-family:var(--font-mono);font-size:15px;font-weight:700;color:rgba(239,231,214,.8)}
 .career3d em{position:absolute;top:calc(var(--ruler) - 18px);font-family:var(--font-mono);font-size:12px;font-weight:700;font-style:normal;white-space:nowrap}
