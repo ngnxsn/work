@@ -153,7 +153,7 @@ function drawGraphBg(GW, GH){
     for (let y = cell; y < h; y += cell) for (let x = cell; x < w; x += cell) g.fillRect(x - dot / 2, y - dot / 2, dot, dot);
   });
   setSurfaceText(graphText, GW, GH,
-    '<span class="st-label" style="left:24px;top:16px">NODE VIEW · WORKFLOW · 2026</span><span class="st-label st-live" style="right:24px;top:16px">● LIVE</span><i class="st-scan"></i>' +
+    '<span class="st-label" style="left:24px;top:16px">NODE VIEW · WORKFLOW · 2026</span>' + (wfState === 'idle' ? '' : '<span class="st-label st-live" style="right:24px;top:16px">● LIVE</span>') + '<i class="st-scan"></i>' +
     (wfState === 'idle' ? '' : // the legend needs the open panel's width
     '<span class="st-label st-lane" style="left:24px;bottom:16px"><i class="st-key"></i>V1 · QUY TRÌNH CHÍNH<i class="st-key st-fx"></i>FX · AI HỖ TRỢ<i class="st-key st-loop"></i>FEEDBACK</span>'));
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -954,14 +954,14 @@ function layout(animate){
   // AI chapter: header, then the node graph (wide enough that node text stays readable)
   L.aheadX = L.tableX + L.TW / 2 + chGap;
   elAHead.style.left = L.aheadX + 'px'; elAHead.style.width = (m ? V.w - 40 : Math.max(headW, 440)) + 'px';
-  L.GW = m ? 1300 : clamp(V.w * 1.25, 1600, 2000); // narrower, but the staggered nodes still breathe
+  L.GW = m ? 1050 : clamp(V.w * 1.25, 1600, 2000); // narrower, but the staggered nodes still breathe
   L.GH = V.avail * (m ? .86 : .94);
   const graphLeft = L.aheadX + (m ? V.w - 40 : Math.max(headW, 440)) + (m ? 40 : 60);
   L.graphX = graphLeft + L.GW / 2;
   graph.position.set(L.graphX, V.y0, -40);
   graph.userData = {W:L.GW, H:L.GH};
   // short screens: Quay and Thiết kế share a column 0.3·GH apart, so a 3-line node (aspect ~1.97) must stay under that
-  const nodeW = Math.min(m ? 230 : clamp(L.GW * .12, 260, 300), (L.GH * .3 - 16) * 1.97);
+  const nodeW = Math.min(m ? 185 : clamp(L.GW * .12, 260, 300), (L.GH * .3 - 16) * 1.97);
   nodeCards.forEach(c => {
     c.setSize(nodeW * (c.data.mini ? .85 : 1) / c.aspect); // the AI lane's helper nodes sit a size down
     c.base.x = c.frac.fx * L.GW; c.base.y = c.frac.fy * L.GH;
@@ -979,11 +979,11 @@ function layout(animate){
   elCHead.style.left = L.cheadX + 'px'; elCHead.style.width = headW + 'px';
   C.k = m ? 14 : clamp(V.w * .011, 16, 22); // px per month from 2022 on
   C.padL = m ? 92 : 120;
-  C.laneH = m ? 80 : clamp(V.avail * .16, 90, 112);
+  C.laneH = m ? 68 : clamp(V.avail * .16, 90, 112);
   C.SH = C.rulerH + LANES.length * C.laneH + 16;
   C.SW = C.padL + 24 + scaled(END_M) - scaled(START_M) + 40;
   L.careerX = L.cheadX + headW + (m ? 40 : 80) + C.SW / 2;
-  const seqCY = V.hud + V.avail * (m ? .7 : .66); // screen y of the sequence center, under the monitor
+  const seqCY = V.hud + V.avail * .66; // screen y of the sequence center, under the monitor
   career.position.set(L.careerX, V.h / 2 - seqCY, -30);
   career.rotation.set(m ? -.35 : -.42, 0, 0); // flatter tilt keeps the small text readable
   careerMesh.scale.set(C.SW, C.SH, 1);
