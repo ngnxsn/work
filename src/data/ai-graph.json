@@ -10,8 +10,9 @@
         "Kênh|TikTok / FB / Web"
       ],
       "color": "#EFE7D6",
-      "fx": -0.42,
-      "fy": 0.05
+      "fx": -0.4,
+      "fy": 0.05,
+      "generate": true
     },
     {
       "key": "shoot",
@@ -87,7 +88,7 @@
         "Concept · Script"
       ],
       "color": "#9B8CFF",
-      "fx": -0.42,
+      "fx": -0.4,
       "fy": -0.27,
       "mini": true
     },
@@ -139,7 +140,7 @@
         "Antigravity"
       ],
       "color": "#9B8CFF",
-      "fx": 0.42,
+      "fx": 0.4,
       "fy": -0.24,
       "mini": true
     }

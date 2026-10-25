@@ -153,8 +153,9 @@ function drawGraphBg(GW, GH){
     for (let y = cell; y < h; y += cell) for (let x = cell; x < w; x += cell) g.fillRect(x - dot / 2, y - dot / 2, dot, dot);
   });
   setSurfaceText(graphText, GW, GH,
-    '<span class="st-label" style="left:24px;top:16px">NODE VIEW · WORKFLOW · 2026</span><span class="st-label st-live" style="right:24px;top:16px">● LIVE</span>' +
-    '<span class="st-label st-lane" style="left:24px;bottom:16px"><i class="st-key"></i>V1 · QUY TRÌNH CHÍNH<i class="st-key st-fx"></i>FX · AI HỖ TRỢ<i class="st-key st-loop"></i>FEEDBACK</span>');
+    '<span class="st-label" style="left:24px;top:16px">NODE VIEW · WORKFLOW · 2026</span><span class="st-label st-live" style="right:24px;top:16px">● LIVE</span><i class="st-scan"></i>' +
+    (wfState === 'idle' ? '' : // the legend needs the open panel's width
+    '<span class="st-label st-lane" style="left:24px;bottom:16px"><i class="st-key"></i>V1 · QUY TRÌNH CHÍNH<i class="st-key st-fx"></i>FX · AI HỖ TRỢ<i class="st-key st-loop"></i>FEEDBACK</span>'));
   tex.colorSpace = THREE.SRGBColorSpace;
   if (graphMat.map) graphMat.map.dispose();
   graphMat.map = tex; graphMat.needsUpdate = true;
@@ -238,13 +239,14 @@ function updateWires(t){
     w.mesh.geometry.attributes.position.needsUpdate = true;
     const lit = focus && (w.a === focus || w.b === focus) ? 1 : 0;
     w.glow = lerp(w.glow, lit, .2);
-    w.mesh.material.opacity = (focus ? .15 + w.glow * .85 : w.kind === 'loop' ? .6 : .35) * (1 - dim * .8);
+    const wv = Math.min(w.a.vis, w.b.vis); // a wire appears once both of its nodes are rendered
+    w.mesh.material.opacity = (focus ? .15 + w.glow * .85 : w.kind === 'loop' ? .6 : .35) * (1 - dim * .8) * wv;
     w.mesh.material.color.set(lit ? focus.color : w.color);
     for (let k = 0; k < PULSES_PER_WIRE; k++){
       const tt = reduce ? .5 : (t * .22 + w.phase + k / PULSES_PER_WIRE) % 1;
       bezier(pA, pB, tt, pt);
       const o = (wi * PULSES_PER_WIRE + k) * 3;
-      pp[o] = pt.x; pp[o+1] = pt.y; pp[o+2] = pt.z + 1;
+      pp[o] = pt.x; pp[o+1] = pt.y; pp[o+2] = wv > .9 ? pt.z + 1 : -1e5; // hidden wires park their pulses behind the far plane
     }
   });
   pulses.geometry.attributes.position.needsUpdate = true;
@@ -584,7 +586,7 @@ class Card {
           const [k, v] = l.split('|');
           return v === undefined ? `<li>${l}</li>` : `<li class="kv"><small>${k}</small>${v}</li>`;
         }).join('')}</ul>
-      </div><i class="nd-port in"></i><i class="nd-port out"></i>`;
+      </div><i class="nd-port in"></i><i class="nd-port out"></i>${n.generate ? '<span class="nd-gen">▶ Generate</span>' : ''}`;
     return el;
   }
   play(){
@@ -693,6 +695,47 @@ const nodeCards = NODES.map((n, i) => new Card({kind:'node', surface:graph, titl
 const careerCards = CAREER.map((d, i) => new Card({kind:'clip', surface:career, static:true, title:d.title, label:d.when, color:d.color, index:i, data:d}));
 const surfaceCards = [...printCards, ...noteCards, ...nodeCards, ...careerCards];
 surfaceCards.forEach((c, i) => { c.stack = i; c.vis = 1; });
+
+/* ============= WORKFLOW GENERATE ============= */
+// The workflow graph opens on the Brief alone; "Generate" (above it) renders the rest: a scan line sweeps the panel
+// while the nodes pop in left to right, each wire appearing once both of its ends are in.
+const briefCard = nodeCards.find(c => c.data.generate);
+const genEl = briefCard ? briefCard.css.element.querySelector('.nd-gen') : null;
+let wfState = 'idle', genHovered = false;
+if (briefCard) nodeCards.forEach(c => { if (c !== briefCard) c.vis = 0; });
+function genUnderPointer(){
+  if (!genEl || !briefCard.group.visible) return false;
+  const r = genEl.getBoundingClientRect();
+  return pointer.x >= r.left && pointer.x <= r.right && pointer.y >= r.top && pointer.y <= r.bottom;
+}
+function generate(){
+  if (!genEl || wfState === 'rendering') return;
+  const opening = wfState === 'idle';
+  wfState = 'rendering';
+  if (opening) layout(); // widen the panel to the full graph; the chapters after it move right
+  genEl.classList.add('busy'); genEl.classList.remove('done');
+  const rest = nodeCards.filter(c => c !== briefCard).sort((a, b) => a.base.x - b.base.x);
+  rest.forEach(c => { gsap.killTweensOf(c); c.vis = 0; });
+  const scan = graphText.element.querySelector('.st-scan');
+  const dur = reduce ? 0 : 2.2, prog = {p:0};
+  genEl.classList.remove('hot'); genEl.textContent = 'Rendering 0%';
+  if (scan) scan.style.opacity = reduce ? 0 : 1;
+  // scan line and counter run on the same clock as the node pops, so they stay in step on a slow device
+  gsap.to(prog, {p:100, duration:dur, ease:'none', onUpdate:() => {
+    genEl.textContent = 'Rendering ' + Math.round(prog.p) + '%';
+    if (scan) scan.style.left = prog.p + '%';
+  }});
+  rest.forEach((c, i) => {
+    const at = reduce ? 0 : .25 + i / rest.length * (dur - .5); // roughly when the scan line passes the node
+    gsap.to(c, {vis:1, duration:reduce ? 0 : .55, delay:at, ease:'back.out(1.7)', onStart:() => { c.flash = 1; }});
+  });
+  gsap.delayedCall(dur + .3, () => {
+    wfState = 'done';
+    genEl.classList.remove('busy'); genEl.classList.add('done');
+    genEl.textContent = '↻ Render lại';
+    if (scan){ scan.style.opacity = 0; scan.style.left = '0%'; }
+  });
+}
 stackTop = surfaceCards.length;
 const allCards = [...deckCards, ...gridCards, ...surfaceCards];
 buildWires();
@@ -715,7 +758,7 @@ function buildDust(){
 
 /* ============= LAYOUT ============= */
 const track = $('#track');
-const elIntro = $('#intro'), elVHead = $('#vhead'), elDHead = $('#dhead'), elAHead = $('#ahead'), elCHead = $('#chead'), elOHead = $('#ohead'), elContact = $('#contact-scene'), elClapCap = $('#clap-caption'), elEnd = $('#vend'), elCaption = $('#deck-caption');
+const elIntro = $('#intro'), elVHead = $('#vhead'), elDHead = $('#dhead'), elAHead = $('#ahead'), elCHead = $('#chead'), elOHead = $('#ohead'), elContact = $('#contact-scene'), elClapCap = $('#clap-caption'), elClapEnd = $('#clap-end'), elCaption = $('#deck-caption');
 
 function measureViewport(){
   // use the size the page is actually laid out at: on iOS innerHeight can include the
@@ -735,8 +778,8 @@ function measureViewport(){
   scene.fog.near = V.D + 300; scene.fog.far = V.D + 2400;
 }
 
-// Under "Tất cả" each bin shows its newest clips only (two columns, the last slot is a "+N · Xem thêm"
-// tile); a bin opens in full when its tile is pressed, or when its filter is picked.
+// Under "Tất cả" each bin shows one column of its newest clips, with a tall thin "+N" strip
+// beside it; a bin opens in full when the strip is pressed, or when its filter is picked.
 const expandedBins = new Set();
 const clipKey = c => { // newest first: year and month from date ("T10/26"), day from the id ("13.10-…")
   const m = (c.data.date || '').match(/T(\d+)\/(\d+)/), day = +(c.data.id.match(/^(\d{1,2})\./) || [])[1] || 0;
@@ -744,9 +787,9 @@ const clipKey = c => { // newest first: year and month from date ("T10/26"), day
 };
 function binCards(cat){
   const all = gridCards.filter(c => c.data.cat === cat).sort((a, b) => clipKey(b) - clipKey(a));
-  const cap = gridRows(V.avail) * 2;
+  const cap = gridRows(V.avail);
   if (filter !== 'all' || all.length <= cap) return {cards:all, more:0};
-  return expandedBins.has(cat) ? {cards:all, more:-1} : {cards:all.slice(0, cap - 1), more:all.length - cap + 1}; // more -1: show "Thu gọn"
+  return expandedBins.has(cat) ? {cards:all, more:-1} : {cards:all.slice(0, cap), more:all.length - cap}; // more -1: show "Thu gọn"
 }
 function visibleCards(){ return Object.keys(CATS).filter(cat => filter === 'all' || cat === filter).flatMap(cat => binCards(cat).cards); }
 
@@ -870,19 +913,20 @@ function layout(animate){
       } else { c.base.x = x; c.base.y = y; if (animate || c.shown) c.vis = 1; }
       c.shown = true;
     });
-    // expand / collapse tile in the next slot
-    const m = b.more, k = inBin.length, hasTile = more !== 0;
+    // expand / collapse strip: a narrow column as tall as the bin, after its last column of cards
+    const m = b.more, cols = Math.ceil(inBin.length / rows), hasTile = more !== 0;
+    const tileW = Math.max(40, L.cardW * .26), tileH = rows * L.cardH + (rows - 1) * L.gap;
     if (hasTile){
-      const x = xLeft + L.cardW / 2 + Math.floor(k / rows) * step;
-      const y = blockTop - BIN_LABEL_H - L.cardH / 2 - (k % rows) * (L.cardH + L.gap);
-      lastX = Math.max(lastX, x);
-      m.el.style.width = L.cardW + 'px'; m.el.style.height = L.cardH + 'px';
-      m.el.innerHTML = more > 0 ? `<b>+${more}</b><span>clip</span><small>Xem thêm</small>` : `<b>↑</b><small>Thu gọn</small>`;
+      const x = xLeft + cols * step + tileW / 2;
+      const y = blockTop - BIN_LABEL_H - tileH / 2;
+      lastX = Math.max(lastX, x + tileW / 2 - L.cardW / 2); // lastX is a card centre: keep its right edge in step
+      m.el.style.width = tileW + 'px'; m.el.style.height = tileH + 'px';
+      m.el.innerHTML = more > 0 ? `<b>+${more}</b>` : `<b>←</b>`; // the strip carries just the count; hover names it
       if (animate && !reduce && m.vis > .05) gsap.to(m.base, {x, y, duration:.9, ease:'power3.inOut'});
       else { m.base.x = x; m.base.y = y; }
     }
     if (animate && !reduce) gsap.to(m, {vis:hasTile ? 1 : 0, duration:.4}); else m.vis = hasTile ? 1 : 0;
-    if (show) xLeft += Math.ceil((inBin.length + (hasTile ? 1 : 0)) / rows) * step - L.gap + binGap;
+    if (show) xLeft += cols * step + (hasTile ? tileW + L.gap : 0) - L.gap + binGap;
   });
   gridCards.filter(c => !list.includes(c)).forEach(c => {
     c.shown = false;
@@ -890,16 +934,17 @@ function layout(animate){
   });
 
   // design chapter: header, then the tilted light table
-  L.dheadX = lastX + L.cardW / 2 + (m ? 80 : 220);
+  const chGap = m ? 60 : 130; // space between chapters
+  L.dheadX = lastX + L.cardW / 2 + chGap;
   elDHead.style.left = L.dheadX + 'px'; elDHead.style.width = headW + 'px';
-  L.TW = m ? V.w * 2 : clamp(V.w * 1.4, 1350, 2200); // five prints + notes, with room to breathe
+  L.TW = m ? V.w * 1.25 : clamp(V.w * .62, 760, 1000); // narrow table: prints stacked in two columns
   L.TH = V.avail * (m ? .85 : 1);
   L.tableX = L.dheadX + headW + (m ? 40 : 60) + L.TW / 2;
   table.position.set(L.tableX, V.y0 + (m ? 0 : 10), -60);
   table.rotation.set(m ? -.3 : -.48, 0, 0);
   tableMesh.scale.set(L.TW, L.TH, 1);
   drawMat(L.TW, L.TH);
-  const printH = L.TH * (m ? .28 : .3), noteH = L.TH * .17;
+  const printH = L.TH * .17, noteH = L.TH * .12; // small, with clear table between the prints
   table.userData = {W:L.TW, H:L.TH};
   [...printCards, ...noteCards].forEach(c => {
     c.setSize(c.kind === 'print' ? printH : noteH);
@@ -907,25 +952,32 @@ function layout(animate){
   });
 
   // AI chapter: header, then the node graph (wide enough that node text stays readable)
-  L.aheadX = L.tableX + L.TW / 2 + (m ? 80 : 200);
+  L.aheadX = L.tableX + L.TW / 2 + chGap;
   elAHead.style.left = L.aheadX + 'px'; elAHead.style.width = (m ? V.w - 40 : Math.max(headW, 440)) + 'px';
-  L.GW = m ? 1700 : clamp(V.w * 1.6, 2000, 2600);
+  L.GW = m ? 1300 : clamp(V.w * 1.25, 1600, 2000); // narrower, but the staggered nodes still breathe
   L.GH = V.avail * (m ? .86 : .94);
-  L.graphX = L.aheadX + (m ? V.w - 40 : Math.max(headW, 440)) + (m ? 40 : 60) + L.GW / 2;
+  const graphLeft = L.aheadX + (m ? V.w - 40 : Math.max(headW, 440)) + (m ? 40 : 60);
+  L.graphX = graphLeft + L.GW / 2;
   graph.position.set(L.graphX, V.y0, -40);
-  graphMesh.scale.set(L.GW, L.GH, 1);
   graph.userData = {W:L.GW, H:L.GH};
-  const nodeW = m ? 230 : clamp(L.GW * .12, 260, 300);
+  // short screens: Quay and Thiết kế share a column 0.3·GH apart, so a 3-line node (aspect ~1.97) must stay under that
+  const nodeW = Math.min(m ? 230 : clamp(L.GW * .12, 260, 300), (L.GH * .3 - 16) * 1.97);
   nodeCards.forEach(c => {
     c.setSize(nodeW * (c.data.mini ? .85 : 1) / c.aspect); // the AI lane's helper nodes sit a size down
     c.base.x = c.frac.fx * L.GW; c.base.y = c.frac.fy * L.GH;
   });
-  drawGraphBg(L.GW, L.GH);
+  // Until "Generate" the panel only spans the Brief (its left part), so the chapter is short to scroll past;
+  // nodes keep their full-graph positions, so nothing moves when it opens, the chapters after it shift right.
+  L.GWshown = wfState === 'idle' && briefCard ? Math.min(L.GW, L.GW / 2 + briefCard.base.x + nodeW / 2 + (m ? 70 : 120)) : L.GW;
+  L.graphShift = -(L.GW - L.GWshown) / 2; // panel centre relative to the graph's (full) centre
+  graphMesh.scale.set(L.GWshown, L.GH, 1);
+  graphMesh.position.x = L.graphShift;
+  drawGraphBg(L.GWshown, L.GH);
 
   // career chapter: header, then the tilted sequence; the monitor floats above it (see updateCareer)
-  L.cheadX = L.graphX + L.GW / 2 + (m ? 80 : 200);
+  L.cheadX = graphLeft + L.GWshown + chGap;
   elCHead.style.left = L.cheadX + 'px'; elCHead.style.width = headW + 'px';
-  C.k = m ? 18 : clamp(V.w * .0143, 21, 29); // px per month from 2022 on
+  C.k = m ? 14 : clamp(V.w * .011, 16, 22); // px per month from 2022 on
   C.padL = m ? 92 : 120;
   C.laneH = m ? 80 : clamp(V.avail * .16, 90, 112);
   C.SH = C.rulerH + LANES.length * C.laneH + 16;
@@ -948,7 +1000,7 @@ function layout(animate){
   lastCareerKey = null;
 
   // contact chapter: header, contact card, then the clapperboard
-  L.oheadX = L.careerEnd + (m ? 80 : 200);
+  L.oheadX = L.careerEnd + chGap;
   elOHead.style.left = L.oheadX + 'px'; elOHead.style.width = headW + 'px';
   const ctW = m ? V.w - 40 : 460;
   L.contactX = L.oheadX + headW + (m ? 40 : 70);
@@ -960,11 +1012,11 @@ function layout(animate){
   elClapCap.style.left = L.clapX + 'px';
   elClapCap.style.top = (V.h / 2 - clap.position.y + CLAP_H * clapS / 2 + 30) + 'px';
 
-  // end card
-  const endW = m ? V.w - 40 : 460;
-  L.endX = L.clapX + CLAP_W * clapS / 2 + (m ? 60 : 160);
-  elEnd.style.left = L.endX + 'px'; elEnd.style.width = endW + 'px';
-  L.worldEnd = L.endX + endW + (m ? 20 : 100);
+  // end line under the clapperboard: the reel ends on the slate (no separate end screen)
+  elClapEnd.style.left = L.clapX + 'px';
+  elClapEnd.style.width = m ? CLAP_W * clapS + 'px' : ''; // phones: wrap under the slate instead of running off screen
+  elClapEnd.style.top = (V.h / 2 - clap.position.y + CLAP_H * clapS / 2 + 62) + 'px';
+  L.worldEnd = L.clapX + CLAP_W * clapS / 2 + (m ? 20 : 80);
   maxScroll = Math.max(0, L.worldEnd - V.w);
   fitScenes(); placeDeck();
   target = clamp(target, 0, maxScroll);
@@ -1223,7 +1275,7 @@ canvas.addEventListener('pointerup', () => {
     return;
   }
   if (!drag) return;
-  if (!drag.moved){ if (hovered) activate(hovered); else if (moreHovered) toggleBin(moreHovered); else if (clapState.hovered) clapAction(); }
+  if (!drag.moved){ if (hovered) activate(hovered); else if (moreHovered) toggleBin(moreHovered); else if (genHovered) generate(); else if (clapState.hovered) clapAction(); }
   // flick inertia, capped near one screen so a hard swipe on a phone cannot fly past a whole chapter
   else if (!reduce) target = clamp(target - clamp(drag.v * 260, -V.w * .8, V.w * .8), 0, maxScroll);
   drag = null;
@@ -1298,7 +1350,7 @@ function activate(c){
 const ray = new THREE.Raycaster();
 function updateHover(){
   if (cardDrag){ setHovered(cardDrag.card); return; }
-  if (viewing || scrub || (drag && drag.moved)){ setHovered(null); moreHovered = null; return; }
+  if (viewing || scrub || (drag && drag.moved)){ setHovered(null); moreHovered = null; genHovered = false; return; }
   ray.setFromCamera(pointer.ndc, camera);
   const meshes = allCards.filter(c => c.group.visible && c.vis > .5).map(c => c.front);
   // depth testing is off, so the card you see on top is the one drawn last, not the nearest hit
@@ -1315,7 +1367,14 @@ function updateHover(){
     if (mh){ cursorLabel.textContent = 'OPEN'; cursorTitle.innerHTML = expandedBins.has(mh.cat) ? 'Thu gọn' : `${mh.info.label}<small>xem hết</small>`; }
   }
   // the clapperboard is not a card; check it only when no card is under the pointer
-  const onClap = !c && !mh && ray.intersectObjects(clapMeshes, false).length > 0;
+  const gh = !c && !mh && genUnderPointer();
+  if (gh !== genHovered){
+    genHovered = gh;
+    genEl.classList.toggle('hot', gh);
+    cursorEl.classList.toggle('on-card', gh || !!mh || !!hovered);
+    if (gh){ cursorLabel.textContent = 'RENDER'; cursorTitle.innerHTML = 'Workflow<small>render toàn bộ</small>'; }
+  }
+  const onClap = !c && !mh && !gh && ray.intersectObjects(clapMeshes, false).length > 0;
   if (onClap !== clapState.hovered){
     clapState.hovered = onClap;
     cursorEl.classList.toggle('on-card', onClap || !!hovered);
@@ -1516,7 +1575,7 @@ function syncCss(){
   });
   pinCss(slateCss, board.matrixWorld, CLAP_W / SLATE_W, CLAP_D / 2 + .5);
   pinCss(tableText, table.matrixWorld, 1, .5);
-  pinCss(graphText, graph.matrixWorld, 1, .5);
+  pinCss(graphText, graph.matrixWorld, 1, .5, L.graphShift || 0); // follows the panel while it is collapsed
   tableText.element.style.opacity = graphText.element.style.opacity = 1 - dim * .7;
   pinCss(careerTextCss, career.matrixWorld, 1, .5);
   pinCss(playheadCss, career.matrixWorld, 1, 60, careerPlayheadX); // floats above lifted clips
@@ -1632,7 +1691,7 @@ function start(){
   document.fonts.ready.then(() => {
     fitScenes(); placeDeck(); // real fonts change text heights
     drawMat(L.TW, L.TH);
-    drawGraphBg(L.GW, L.GH);
+    drawGraphBg(L.GWshown, L.GH);
     drawCareerBg();
   });
   frame();

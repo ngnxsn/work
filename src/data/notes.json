@@ -7,8 +7,8 @@
       "Social post"
     ],
     "color": "#EFE7D6",
-    "fx": -0.42,
-    "fy": -0.3,
+    "fx": -0.36,
+    "fy": -0.34,
     "rot": -0.1
   },
   {
@@ -17,9 +17,9 @@
       "Illustrator",
       "/ daily"
     ],
-    "color": "#D97757",
-    "fx": 0.16,
-    "fy": 0.34,
+    "color": "#8A8170",
+    "fx": 0.37,
+    "fy": -0.33,
     "rot": 0.08
   },
   {
@@ -27,9 +27,9 @@
       "Xem thêm",
       "trên Behance ↗"
     ],
-    "color": "#E3B341",
-    "fx": 0.43,
-    "fy": -0.29,
+    "color": "#CFC6B4",
+    "fx": 0.36,
+    "fy": 0.36,
     "rot": 0.06,
     "url": "https://www.behance.net/ngnxsn"
   }

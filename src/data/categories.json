@@ -1,26 +1,26 @@
 {
   "motion": {
     "label": "Motion",
-    "color": "#D97757"
+    "color": "#C18367"
   },
   "ads": {
     "label": "Ads Video",
-    "color": "#E3B341"
+    "color": "#C7A75A"
   },
   "ai": {
     "label": "AI Video",
-    "color": "#9B8CFF"
+    "color": "#9C8FCC"
   },
   "product": {
     "label": "Product",
-    "color": "#6FBF8E"
+    "color": "#82AE88"
   },
   "short": {
     "label": "Short",
-    "color": "#5FB3D9"
+    "color": "#78A7B5"
   },
   "animation": {
     "label": "Animation",
-    "color": "#E07AA8"
+    "color": "#C68498"
   }
 }
