@@ -112,7 +112,7 @@ body:not(.fine) .on-touch{display:inline}
 .sw-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:0 0 18px;max-width:420px}
 .sw{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:10px;color:var(--subtle);text-align:center}
 .sw b{display:grid;place-items:center;width:38px;height:38px;border-radius:9px;font-family:var(--font-mono);font-size:13px;font-weight:700;
-  color:var(--fg);background:var(--panel);border:1px solid var(--line-2)} /* mono tiles, no brand colours */
+  color:var(--c);background:color-mix(in srgb,var(--c) 12%,var(--panel));border:1px solid color-mix(in srgb,var(--c) 35%,transparent)} /* each app in its own brand colour */
 .mini-title{font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--subtle);margin:22px 0 10px}
 @media (max-width:719px){.sw b{width:32px;height:32px;font-size:11px}.chead h2{font-size:40px}}
 .link-arrow{align-self:flex-start;font-size:14px;font-weight:500;padding:12px 18px;border-radius:999px;border:1px solid var(--line-2);transition:all .2s}
