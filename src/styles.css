@@ -443,3 +443,5 @@ a:focus-visible,button:focus-visible,.chip:focus-visible{outline:2px solid var(-
   .career3d .cy{font-size:12px}.career3d .clane{font-size:11px}
 }
 @media (max-width:719px){.clap-caption{white-space:normal;text-align:center;line-height:1.6}}
+/* phones: the Video headline stacks "phần" (tall marks) under a descender, so give its lines more room */
+@media (max-width:719px){#vhead h2{line-height:1.1}}
