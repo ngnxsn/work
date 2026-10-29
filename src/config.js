@@ -4,7 +4,7 @@ export const EMAIL = 'nguyenson.0312vn@gmail.com';
 export const PHONE = '0946831748';
 
 // Intro showreel: indexes into videos.json; the center one (3rd) autoplays.
-export const DECK_IDS = [14, 0, 16, 43, 30];
+export const DECK_IDS = [13, 0, 17, 47, 31];
 
 // Chapters not built yet show as hatched blocks at the end of the timeline.
 export const GHOSTS = [];
