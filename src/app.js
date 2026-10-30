@@ -1059,7 +1059,8 @@ function showDebug(o){
   el.textContent = Object.entries(o).map(([k, v]) => k + ': ' + v).join('\n');
 }
 // Phones: the skill chips stay in two rows of four (a grid, see styles.css), zoomed down to the
-// copy column's width. Run before fitScenes measures heights and again after it zooms the copy.
+// copy column's width. fitScenes sizes the copy with the chips still wrapping freely (.flow), so
+// the text keeps the size it had before the grid, then the grid goes back in.
 const rolesEl = $('.roles');
 function fitRoles(){
   if (!rolesEl) return;
@@ -1069,7 +1070,7 @@ function fitRoles(){
   if (k < 1) rolesEl.style.zoom = k.toFixed(3);
 }
 function fitScenes(){
-  fitRoles();
+  if (rolesEl){ rolesEl.style.zoom = ''; rolesEl.classList.add('flow'); }
   track.querySelectorAll('.scene').forEach(el => {
     // the mobile deck caption is placed by placeDeck, under the deck: it is not part of the copy to fit
     const kids = [...el.children].filter(c => c.id !== 'intro-end' && !(V.mobile && c === elCaption));
@@ -1082,6 +1083,7 @@ function fitScenes(){
     const k = space / (Math.max(...rects.map(r => r.bottom)) - Math.min(...rects.map(r => r.top)) + 8);
     if (k < 1) kids.forEach(c => { c.style.zoom = Math.max(.55, k * .97).toFixed(3); });
   });
+  if (rolesEl) rolesEl.classList.remove('flow');
   fitRoles();
 }
 
