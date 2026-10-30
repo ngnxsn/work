@@ -1058,7 +1058,18 @@ function showDebug(o){
   if (!el){ el = document.createElement('pre'); el.id = 'dbg'; el.style.cssText = 'position:fixed;left:8px;top:70px;z-index:99;margin:0;padding:6px 8px;font:11px/1.4 monospace;background:#000c;color:#7f7;border-radius:6px;pointer-events:none'; document.body.append(el); }
   el.textContent = Object.entries(o).map(([k, v]) => k + ': ' + v).join('\n');
 }
+// Phones: the skill chips stay in two rows of four (a grid, see styles.css), zoomed down to the
+// copy column's width. Run before fitScenes measures heights and again after it zooms the copy.
+const rolesEl = $('.roles');
+function fitRoles(){
+  if (!rolesEl) return;
+  rolesEl.style.zoom = '';
+  if (!V.mobile) return;
+  const k = rolesEl.parentElement.clientWidth / rolesEl.scrollWidth; // layout px, unaffected by Safari's zoomed rects
+  if (k < 1) rolesEl.style.zoom = k.toFixed(3);
+}
 function fitScenes(){
+  fitRoles();
   track.querySelectorAll('.scene').forEach(el => {
     // the mobile deck caption is placed by placeDeck, under the deck: it is not part of the copy to fit
     const kids = [...el.children].filter(c => c.id !== 'intro-end' && !(V.mobile && c === elCaption));
@@ -1071,6 +1082,7 @@ function fitScenes(){
     const k = space / (Math.max(...rects.map(r => r.bottom)) - Math.min(...rects.map(r => r.top)) + 8);
     if (k < 1) kids.forEach(c => { c.style.zoom = Math.max(.55, k * .97).toFixed(3); });
   });
+  fitRoles();
 }
 
 /* ============= CHAPTERS / TIMELINE ============= */
