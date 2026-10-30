@@ -71,6 +71,9 @@ body.fine #gl{cursor:none}
   letter-spacing:-.045em;margin:22px 0 26px}
 .intro h1 span{display:block}
 .intro h1 em{font-style:normal;color:var(--em)}
+.intro h1:has(+ .title-role){margin-bottom:14px}
+.title-role{font-family:var(--font-display);font-weight:700;font-size:clamp(22px,2.3vw,34px);letter-spacing:-.02em;
+  line-height:1;color:var(--em);margin-bottom:22px}
 .roles{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
 .role{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;padding:6px 12px 6px 6px;border-radius:8px;
   border:1px solid var(--line-2)} /* mono: the V1/V2/FX colours stay in the markup but are not shown */
@@ -153,7 +156,7 @@ body:not(.fine) .on-touch{display:inline}
 .playhead span{position:absolute;top:2px;left:0;transform:translateX(-50%);background:var(--rec);color:var(--ink);
   font-family:var(--font-mono);font-size:9px;padding:2px 5px;border-radius:3px;white-space:nowrap}
 @media (max-width:719px){
-  .intro{padding:0 20px}.intro-copy{max-width:none}.intro h1{margin:14px 0 18px}
+  .intro{padding:0 20px}.intro-copy{max-width:none}.intro h1{margin:14px 0 18px}.title-role{font-size:22px;margin-bottom:16px}
   .intro .stats,.intro .hint{display:none}.roles{margin-bottom:16px}.role{font-size:12px}
 }
 @media (max-width:719px){.tl-labels{width:40px}.clip{font-size:9px;padding:0 4px}}
