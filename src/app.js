@@ -132,6 +132,37 @@ const graph = new THREE.Group();
 scene.add(graph);
 graph.userData = {W:1, H:1};
 const graphMat = mat({alphaMap:ALPHA_SOFT, opacity:.9});
+// Mosaic reveal: the panel is cut into 24px tiles, one per grid dot (edges fall between the dots). Before
+// "Generate" only the tiles around the Brief show; generating lights the rest outward from it,
+// each tile flashing as it lands, with faint tiles flickering ahead of the front.
+const MOSAIC_CELL = 24;
+const MOSAIC = {
+  uProg:{value:-1}, uTime:{value:0}, uSize:{value:new THREE.Vector2(1, 1)},
+  uRect:{value:new THREE.Vector4(0, 0, 1e4, 1e4)}, uOrigin:{value:new THREE.Vector2()}, uMaxD:{value:1},
+};
+graphMat.onBeforeCompile = sh => {
+  Object.assign(sh.uniforms, MOSAIC);
+  sh.fragmentShader = sh.fragmentShader
+    .replace('#include <common>', `#include <common>
+uniform float uProg, uTime, uMaxD; uniform vec2 uSize, uOrigin; uniform vec4 uRect;
+float mHash(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }`)
+    .replace('#include <opaque_fragment>', `{
+  vec2 px = vec2(vMapUv.x, 1.0 - vMapUv.y) * uSize;            // panel px from the top-left
+  vec2 cell = floor((px + 12.0) / ${MOSAIC_CELL}.0);
+  bool idle = all(greaterThanEqual(cell, uRect.xy)) && all(lessThanEqual(cell, uRect.zw));
+  float at = length(cell - uOrigin) / uMaxD * .72 + mHash(cell) * .28;
+  float age = idle ? 9.0 : uProg - at;
+  if (age < 0.0){
+    float flick = step(.82, mHash(cell + floor(uTime * 16.0)));
+    if (age < -.07 || flick < .5) discard;
+    outgoingLight = vec3(.85, .47, .34); diffuseColor.a = .2 * opacity; // faint orange tiles flicker ahead of the front
+  } else {
+    float flash = 1.0 - smoothstep(0.0, .14, age);
+    outgoingLight = mix(outgoingLight, vec3(.85, .47, .34), flash * .5); // an orange flash as each tile lands
+  }
+}
+#include <opaque_fragment>`);
+};
 const graphMesh = new THREE.Mesh(PLANE, graphMat);
 graphMesh.renderOrder = 1;
 graph.add(graphMesh);
@@ -153,7 +184,9 @@ function drawGraphBg(GW, GH){
     for (let y = cell; y < h; y += cell) for (let x = cell; x < w; x += cell) g.fillRect(x - dot / 2, y - dot / 2, dot, dot);
   });
   setSurfaceText(graphText, GW, GH,
-    '<span class="st-label" style="left:24px;top:16px">NODE VIEW · WORKFLOW · 2026</span>' + (wfState === 'idle' ? '' : '<span class="st-label st-live" style="right:24px;top:16px">● LIVE</span>') + '<i class="st-scan"></i>' +
+    // collapsed, the label sits in the corner of the tiles around the Brief
+    (wfState === 'idle' && L.mosaicRect ? `<span class="st-label" style="left:${L.mosaicRect[0] + 16}px;top:${L.mosaicRect[1] + 14}px">NODE VIEW · 2026</span>`
+      : '<span class="st-label" style="left:24px;top:16px">NODE VIEW · WORKFLOW · 2026</span><span class="st-label st-live" style="right:24px;top:16px">● LIVE</span>') +
     (wfState === 'idle' ? '' : // the legend needs the open panel's width
     '<span class="st-label st-lane" style="left:24px;bottom:16px"><i class="st-key"></i>V1 · QUY TRÌNH CHÍNH<i class="st-key st-fx"></i>FX · AI HỖ TRỢ<i class="st-key st-loop"></i>FEEDBACK</span>'));
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -716,24 +749,27 @@ function generate(){
   genEl.classList.add('busy'); genEl.classList.remove('done');
   const rest = nodeCards.filter(c => c !== briefCard).sort((a, b) => a.base.x - b.base.x);
   rest.forEach(c => { gsap.killTweensOf(c); c.vis = 0; });
-  const scan = graphText.element.querySelector('.st-scan');
   const dur = reduce ? 0 : 2.2, prog = {p:0};
   genEl.classList.remove('hot'); genEl.textContent = 'Rendering 0%';
-  if (scan) scan.style.opacity = reduce ? 0 : 1;
-  // scan line and counter run on the same clock as the node pops, so they stay in step on a slow device
-  gsap.to(prog, {p:100, duration:dur, ease:'none', onUpdate:() => {
-    genEl.textContent = 'Rendering ' + Math.round(prog.p) + '%';
-    if (scan) scan.style.left = prog.p + '%';
-  }});
-  rest.forEach((c, i) => {
-    const at = reduce ? 0 : .25 + i / rest.length * (dur - .5); // roughly when the scan line passes the node
+  // the mosaic and the counter run on the same clock as the node pops, so they stay in step on a slow device
+  gsap.killTweensOf(MOSAIC.uProg);
+  MOSAIC.uProg.value = 0;
+  gsap.to(MOSAIC.uProg, {value:1.15, duration:dur, ease:'power1.in'}); // past 1 so the last tiles finish flashing
+  // the panel's corner labels and legend wait for the tiles under them
+  gsap.fromTo(graphText.element.querySelectorAll('.st-label'), {opacity:0}, {opacity:1, duration:.5, delay:dur * .85});
+  gsap.to(prog, {p:100, duration:dur, ease:'none', onUpdate:() => { genEl.textContent = 'Rendering ' + Math.round(prog.p) + '%'; }});
+  // a node pops when the mosaic front reaches it
+  const o = MOSAIC.uOrigin.value;
+  rest.forEach(c => {
+    const cx = (L.GW / 2 + c.base.x + 12) / MOSAIC_CELL, cy = (L.GH / 2 - c.base.y + 12) / MOSAIC_CELL;
+    const p = Math.min(1, Math.hypot(cx - o.x, cy - o.y) / MOSAIC.uMaxD.value * .72 + .14);
+    const at = reduce ? 0 : Math.sqrt(p / 1.15) * dur; // inverse of the power1.in ease above
     gsap.to(c, {vis:1, duration:reduce ? 0 : .55, delay:at, ease:'back.out(1.7)', onStart:() => { c.flash = 1; }});
   });
   gsap.delayedCall(dur + .3, () => {
     wfState = 'done';
     genEl.classList.remove('busy'); genEl.classList.add('done');
     genEl.textContent = '↻ Render lại';
-    if (scan){ scan.style.opacity = 0; scan.style.left = '0%'; }
   });
 }
 stackTop = surfaceCards.length;
@@ -969,10 +1005,24 @@ function layout(animate){
   // Until "Generate" the panel only spans the Brief (its left part), so the chapter is short to scroll past;
   // nodes keep their full-graph positions, so nothing moves when it opens, the chapters after it shift right.
   L.GWshown = wfState === 'idle' && briefCard ? Math.min(L.GW, L.GW / 2 + briefCard.base.x + nodeW / 2 + (m ? 70 : 120)) : L.GW;
-  L.graphShift = -(L.GW - L.GWshown) / 2; // panel centre relative to the graph's (full) centre
-  graphMesh.scale.set(L.GWshown, L.GH, 1);
-  graphMesh.position.x = L.graphShift;
-  drawGraphBg(L.GWshown, L.GH);
+  // the panel itself is always full size; until then the mosaic shader shows only the tiles around the Brief
+  L.graphShift = 0;
+  graphMesh.scale.set(L.GW, L.GH, 1);
+  graphMesh.position.x = 0;
+  if (briefCard){
+    const bw = nodeW, bh = nodeW / briefCard.aspect, padX = m ? 36 : 48;
+    const left = L.GW / 2 + briefCard.base.x - bw / 2 - padX, right = left + bw + padX * 2;
+    const top = L.GH / 2 - briefCard.base.y - bh / 2 - (m ? 96 : 116), bottom = L.GH / 2 - briefCard.base.y + bh / 2 + padX;
+    const cell = v => Math.floor((v + 12) / MOSAIC_CELL);
+    const r = [cell(left), cell(top), cell(right), cell(bottom)];
+    MOSAIC.uRect.value.set(...r);
+    L.mosaicRect = r.map((v, i) => v * MOSAIC_CELL - 12 + (i > 1 ? MOSAIC_CELL : 0)); // px, for the label
+    const o = MOSAIC.uOrigin.value.set((r[0] + r[2]) / 2, (r[1] + r[3]) / 2);
+    const cols = L.GW / MOSAIC_CELL, rows = L.GH / MOSAIC_CELL;
+    MOSAIC.uMaxD.value = Math.max(Math.hypot(o.x, o.y), Math.hypot(cols - o.x, o.y), Math.hypot(o.x, rows - o.y), Math.hypot(cols - o.x, rows - o.y));
+  }
+  MOSAIC.uSize.value.set(L.GW, L.GH);
+  drawGraphBg(L.GW, L.GH);
 
   // career chapter: header, then the tilted sequence; the monitor floats above it (see updateCareer)
   L.cheadX = graphLeft + L.GWshown + chGap;
@@ -1652,6 +1702,7 @@ function frame(){
   track.style.transform = `translate3d(${-scroll}px,0,0)`;
   tableMat.opacity = 1 - dim * .7;
   graphMat.opacity = .9 - dim * .7;
+  MOSAIC.uTime.value = t;
   // the graph sways a touch with the pointer while it is on screen, to read as a 3D panel
   if (!reduce) graph.rotation.set(-.1 + mouseN.y * .03, mouseN.x * .06, 0);
 
@@ -1694,7 +1745,7 @@ function start(){
   document.fonts.ready.then(() => {
     fitScenes(); placeDeck(); // real fonts change text heights
     drawMat(L.TW, L.TH);
-    drawGraphBg(L.GWshown, L.GH);
+    drawGraphBg(L.GW, L.GH);
     drawCareerBg();
   });
   frame();
