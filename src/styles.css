@@ -158,7 +158,7 @@ body:not(.fine) .on-touch{display:inline}
 .playhead span{position:absolute;top:2px;left:0;transform:translateX(-50%);background:var(--rec);color:var(--ink);
   font-family:var(--font-mono);font-size:9px;padding:2px 5px;border-radius:3px;white-space:nowrap}
 @media (max-width:719px){
-  .intro{padding:0 20px}.intro-copy{max-width:none}.intro h1{margin:14px 0 18px}.title-role{font-size:22px;margin-bottom:16px}.role-br{display:none}
+  .intro{padding:0 20px}.intro-copy{max-width:none}.intro h1{margin:14px 0 18px;font-size:clamp(40px,13.6vw,64px);white-space:nowrap}.intro h1 span{display:inline}.intro h1 span:first-child{margin-right:.2em} /* one line on phones */.title-role{font-size:22px;margin-bottom:16px}.role-br{display:none}
   .intro .stats,.intro .hint{display:none}.roles,.roles:has(.role-br){margin:0 0 16px}.role{font-size:12px}
 }
 @media (max-width:719px){.tl-labels{width:40px}.clip{font-size:9px;padding:0 4px}}
