@@ -437,6 +437,8 @@ a:focus-visible,button:focus-visible,.chip:focus-visible{outline:2px solid var(-
 .nd-gen.busy,.nd-gen.busy.hot{background:var(--panel-2);color:var(--em);box-shadow:0 0 0 2px var(--em);animation:none}
 .nd-gen.done{background:transparent;color:var(--muted);box-shadow:0 0 0 2px var(--line-2);animation:none;text-transform:none}
 .nd-gen.done.hot{background:transparent;color:var(--fg);box-shadow:0 0 0 2px var(--fg)}
+.surface3d .st-scan{position:absolute;top:0;bottom:0;left:0;width:2px;opacity:0;background:var(--fg);
+  box-shadow:0 0 18px 4px rgba(239,231,214,.45),-60px 0 80px rgba(239,231,214,.08)} /* moved by generate() */
 /* phones: smaller career clips and ruler text (after the base clip rules so these win) */
 @media (max-width:719px){
   .clip3d{padding:6px 10px 0 12px;border-top-width:4px;border-left-width:3px}
